@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:h2:./h2test;MODE=MySQL;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
+  jpa:
+    database: MYSQL
+    hibernate:
+      ddl-auto: create-drop
+      show_sql: true
+
+flyway:
+  enabled: false
+
+reportdata:
+  update-delay-in-millis: 3000
+  cleanup-frequency-in-millis: 3000

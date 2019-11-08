@@ -47,7 +47,7 @@ public final class ReportDataService {
 
     /**
      * By default, update tasks should be scheduled for 5 minutes in the future (i.e. 300000 milliseconds).  However,
-     * this can be overwritten in the "application.properties" config file... primarily so that unit tests can use
+     * this can be overwritten in the "application.yml" config file... primarily so that unit tests can use
      * a much shorter value.
      */
     @Value("${reportdata.update-delay-in-millis:300000}")
@@ -55,7 +55,7 @@ public final class ReportDataService {
 
     /**
      * By default, a background thread should prune outdated entries from the "scheduledUserUpdates" map once every
-     * hour.  This can be overwritten in the "application.properties" config file, primarily so that unit tests can
+     * hour.  This can be overwritten in the "application.yml" config file, primarily so that unit tests can
      * use a much shorter value.
      */
     @Value("${reportdata.cleanup-frequency-in-millis:3600000}")
