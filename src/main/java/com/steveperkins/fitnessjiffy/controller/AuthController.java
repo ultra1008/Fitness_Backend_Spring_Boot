@@ -19,12 +19,7 @@ import java.util.concurrent.TimeUnit;
 @Controller
 public class AuthController extends AbstractController {
 
-    @GetMapping(value = "/login")
-    public String viewLogin() {
-        return LOGIN_TEMPLATE;
-    }
-
-    @PostMapping(value = "/login")
+    @PostMapping(value = "/userpass")
     public void doLogin(
             @RequestParam final String username,
             @RequestParam final String password,
@@ -62,7 +57,7 @@ public class AuthController extends AbstractController {
             deletedCookie.setMaxAge(0);
             response.addCookie(deletedCookie);
         }
-        response.sendRedirect("/login?logout=true");
+        response.sendRedirect("/login.html?logout=true");
     }
 
 }

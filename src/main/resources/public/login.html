@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<html>
 <head>
     <title>FitnessJiffy</title>
 
@@ -21,7 +20,6 @@
 
         ga('create', 'UA-28600243-4', 'auto');
         ga('send', 'pageview');
-
     </script>
 </head>
 
@@ -53,18 +51,18 @@
         <div class="row padded-bottom"/>
         <div class="row padded-bottom"/>
         <div class="row padded-bottom"/>
-        <div th:if="${param.error}" class="row">
+        <div id="error" class="row" style="visibility: hidden">
             <div class="center-block center-content padded-bottom">
                 Invalid username and password.
             </div>
         </div>
-        <div th:if="${param.logout}" class="row">
+        <div id="logout" class="row" style="visibility: hidden">
             <div class="center-block center-content padded-bottom">
                 You have been logged out.
             </div>
         </div>
         <div class="row padded-bottom"/>
-        <form th:action="@{/login}" method="post">
+        <form action="/userpass" method="post">
             <div class="row">
                 <div class="center-block center-content">
                     <label> User Name : <input class="form-control" type="text" name="username"/> </label>
@@ -84,5 +82,17 @@
         </form>
     </div>
 </div>
+<script>
+    $(function() {
+        var errorRegex = new RegExp('[?&]error=([^&#]*)', 'i');
+        if (errorRegex.exec(window.location.href)) {
+            $('#error').show();
+        }
+        var logoutRegex = new RegExp('[?&]logout=([^&#]*)', 'i');
+        if (logoutRegex.exec(window.location.href)) {
+            $('#logout').show();
+        }
+    });
+</script>
 </body>
 </html>
