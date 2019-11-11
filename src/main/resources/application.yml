@@ -1,0 +1,22 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost/fitnessjiffy
+    driverClassName: com.mysql.jdbc.Driver
+    username: fitnessjiffy
+    password: fitnessjiffy
+    test-on-borrow: true
+    validation-query: SELECT 1
+  jpa:
+    database: MYSQL
+    hibernate:
+      ddl-auto: validate
+      show_sql: true
+  thymeleaf:
+    cache: false
+
+reportdata:
+  update-delay-in-millis: 120000
+  reportdata.cleanup-frequency-in-millis: 120000

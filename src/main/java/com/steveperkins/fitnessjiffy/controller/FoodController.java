@@ -2,6 +2,7 @@ package com.steveperkins.fitnessjiffy.controller;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 
 import com.steveperkins.fitnessjiffy.domain.Food;
 
@@ -48,9 +49,12 @@ final class FoodController extends AbstractController {
             final String dateString,
 
             @Nonnull
+            final HttpServletRequest request,
+
+            @Nonnull
             final Model model
     ) {
-        final UserDTO userDTO = currentAuthenticatedUser();
+        final UserDTO userDTO = currentAuthenticatedUser(request);
         final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
 
         final List<FoodDTO> foodsEatenRecently = foodService.findEatenRecently(userDTO.getId(), date);
@@ -100,13 +104,14 @@ final class FoodController extends AbstractController {
     public final String addFoodEaten(
             @Nonnull @RequestParam(value = "foodId", required = true) final String foodIdString,
             @Nonnull @RequestParam(value = "date", required = false) final String dateString,
+            @Nonnull final HttpServletRequest request,
             @Nonnull final Model model
     ) {
-        final UserDTO userDTO = currentAuthenticatedUser();
+        final UserDTO userDTO = currentAuthenticatedUser(request);
         final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
         final UUID foodId = UUID.fromString(foodIdString);
         foodService.addFoodEaten(userDTO.getId(), foodId, date);
-        return viewMainFoodPage(dateString, model);
+        return viewMainFoodPage(dateString, request, model);
     }
 
     @RequestMapping(value = "/food/eaten/update")
@@ -116,9 +121,10 @@ final class FoodController extends AbstractController {
             @Nonnull @RequestParam(value = "foodEatenQty", required = true) final double foodEatenQty,
             @Nonnull @RequestParam(value = "foodEatenServing", required = true) final String foodEatenServing,
             @Nonnull @RequestParam(value = "action", required = true) final String action,
+            @Nonnull final HttpServletRequest request,
             @Nonnull final Model model
     ) {
-        final UserDTO userDTO = currentAuthenticatedUser();
+        final UserDTO userDTO = currentAuthenticatedUser(request);
         final UUID foodEatenUUID = UUID.fromString(foodEatenId);
         final FoodEatenDTO foodEatenDTO = foodService.findFoodEatenById(foodEatenUUID);
         final String dateString = dateFormat.format(foodEatenDTO.getDate());
@@ -130,15 +136,18 @@ final class FoodController extends AbstractController {
         } else if (action.equalsIgnoreCase("delete")) {
             foodService.deleteFoodEaten(foodEatenUUID);
         }
-        return viewMainFoodPage(dateString, model);
+        return viewMainFoodPage(dateString, request, model);
     }
 
     @RequestMapping(value = "/food/search/{searchString}")
     @Nonnull
     public final
     @ResponseBody
-    List<FoodDTO> searchFoods(@Nonnull @PathVariable final String searchString) {
-        final UserDTO userDTO = currentAuthenticatedUser();
+    List<FoodDTO> searchFoods(
+            @Nonnull @PathVariable final String searchString,
+            @Nonnull final HttpServletRequest request
+    ) {
+        final UserDTO userDTO = currentAuthenticatedUser(request);
         return foodService.searchFoods(userDTO.getId(), searchString);
     }
 
@@ -146,8 +155,11 @@ final class FoodController extends AbstractController {
     @Nullable
     public final
     @ResponseBody
-    FoodDTO getFood(@Nonnull @PathVariable final String foodId) {
-        final UserDTO userDTO = currentAuthenticatedUser();
+    FoodDTO getFood(
+            @Nonnull @PathVariable final String foodId,
+            @Nonnull final HttpServletRequest request
+    ) {
+        final UserDTO userDTO = currentAuthenticatedUser(request);
         FoodDTO foodDTO = foodService.getFoodById(UUID.fromString(foodId));
         // Only return foods that are visible to the requesting user
         if (foodDTO.getOwnerId() != null && !foodDTO.getOwnerId().equals(userDTO.getId())) {
@@ -162,9 +174,10 @@ final class FoodController extends AbstractController {
     @ResponseBody
     String createOrUpdateFood(
             @Nonnull @ModelAttribute final FoodDTO foodDTO,
+            @Nonnull final HttpServletRequest request,
             @Nonnull final Model model
     ) {
-        final UserDTO userDTO = currentAuthenticatedUser();
+        final UserDTO userDTO = currentAuthenticatedUser(request);
         String resultMessage;
         if (foodDTO.getId() == null) {
             resultMessage = foodService.createFood(foodDTO, userDTO);

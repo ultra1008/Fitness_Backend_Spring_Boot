@@ -77,7 +77,6 @@
                 <li><a href="/report">Reports</a></li>
             </ul>
             <form id="logoutForm" action="/logout" method="post">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="javascript:{}" onclick="document.getElementById('logoutForm').submit();">Logout</a></li>
                 </ul>
@@ -88,7 +87,6 @@
 <div class="page-container">
     <div class="container main-container">
         <form action="/profile/weight/save" method="post">
-            <input th:name="${_csrf.parameterName}" type="hidden" th:value="${_csrf.token}" />
             <div class="row">
                 <div class="center-block center-content">
                     <h2>Weight</h2>
@@ -118,7 +116,6 @@
             </div>
         </form>
         <form th:object="${user}" action="/profile/save" method="post">
-            <input th:name="${_csrf.parameterName}" type="hidden" th:value="${_csrf.token}"/>
             <input type="hidden" th:field="*{id}"/>
             <div class="row">
                 <div class="center-block center-content">

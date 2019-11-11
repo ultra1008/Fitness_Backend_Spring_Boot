@@ -1,13 +1,8 @@
 package com.steveperkins.fitnessjiffy.controller;
 
-import com.steveperkins.fitnessjiffy.config.SecurityConfig;
 import com.steveperkins.fitnessjiffy.domain.User;
 import com.steveperkins.fitnessjiffy.dto.UserDTO;
 import com.steveperkins.fitnessjiffy.dto.WeightDTO;
-import com.steveperkins.fitnessjiffy.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,19 +13,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 import java.sql.Date;
 import java.time.ZoneId;
 import java.util.TreeSet;
 
 @Controller
 final class ProfileController extends AbstractController {
-
-    private final UserService userService;
-
-    @Autowired
-    public ProfileController(@Nonnull final UserService userService) {
-        this.userService = userService;
-    }
 
     @RequestMapping(value = {"/", "/profile"}, method = RequestMethod.GET)
     @Nonnull
@@ -39,9 +28,11 @@ final class ProfileController extends AbstractController {
             @RequestParam(value = "date", required = false)
             final String dateString,
 
+            @Nonnull final HttpServletRequest request,
+
             @Nonnull final Model model
     ) {
-        final UserDTO userDTO = currentAuthenticatedUser();
+        final UserDTO userDTO = currentAuthenticatedUser(request);
         final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
         final WeightDTO weight = userService.findWeightOnDate(userDTO, date);
         final String weightEntry = (weight == null) ? "" : String.valueOf(weight.getPounds());
@@ -92,6 +83,9 @@ final class ProfileController extends AbstractController {
             final BindingResult result,
 
             @Nonnull
+            final HttpServletRequest request,
+
+            @Nonnull
             final Model model
     ) {
         if (currentPassword == null || currentPassword.isEmpty()) {
@@ -110,15 +104,8 @@ final class ProfileController extends AbstractController {
             } else {
                 userService.updateUser(userDTO, newPassword);
             }
-
-            // Update the user in the active Spring Security session
-            final UserDTO updatedUser = userService.findUser(userDTO.getId());  // re-calc BMI, daily calorie needs, etc
-            final String passwordHash = userService.getPasswordHash(userDTO);
-            final SecurityConfig.SpringUserDetails newUserDetails = new SecurityConfig.SpringUserDetails(updatedUser, passwordHash);
-            final UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(newUserDetails, passwordHash, null);
-            SecurityContextHolder.getContext().setAuthentication(newAuth);
         }
-        return viewMainProfilePage(dateString, model);
+        return viewMainProfilePage(dateString, request, model);
     }
 
     @RequestMapping(value = {"/profile/weight/save"}, method = RequestMethod.POST)
@@ -132,13 +119,17 @@ final class ProfileController extends AbstractController {
         @RequestParam(value = "dateString", required = false)
         final String dateString,
 
-        @Nonnull final Model model
+        @Nonnull
+        final HttpServletRequest request,
+
+        @Nonnull
+        final Model model
     ) {
-        final UserDTO userDTO = currentAuthenticatedUser();
+        final UserDTO userDTO = currentAuthenticatedUser(request);
         final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
         userService.updateWeight(userDTO, date, weightEntry);
 
-        return viewMainProfilePage(dateString, model);
+        return viewMainProfilePage(dateString, request, model);
     }
 
 }

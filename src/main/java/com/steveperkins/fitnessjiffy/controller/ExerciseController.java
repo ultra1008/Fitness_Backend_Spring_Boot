@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
@@ -47,9 +48,11 @@ final class ExerciseController extends AbstractController {
             @RequestParam(value = "date", required = false)
             final String dateString,
 
+            @Nonnull final HttpServletRequest request,
+
             @Nonnull final Model model
     ) {
-        final UserDTO userDTO = currentAuthenticatedUser();
+        final UserDTO userDTO = currentAuthenticatedUser(request);
         final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
 
         final List<ExerciseDTO> exercisesPerformedRecently = exerciseService.findPerformedRecently(userDTO.getId(), date)
@@ -87,13 +90,14 @@ final class ExerciseController extends AbstractController {
     public final String addExercisePerformed(
             @Nonnull @RequestParam(value = "exerciseId", required = true) final String exerciseIdString,
             @Nullable @RequestParam(value = "date", required = false) final String dateString,
+            @Nonnull final HttpServletRequest request,
             @Nonnull final Model model
     ) {
-        final UserDTO userDTO = currentAuthenticatedUser();
+        final UserDTO userDTO = currentAuthenticatedUser(request);
         final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
         final UUID exerciseId = UUID.fromString(exerciseIdString);
         exerciseService.addExercisePerformed(userDTO.getId(), exerciseId, date);
-        return viewMainExercisePage(dateString, model);
+        return viewMainExercisePage(dateString, request, model);
     }
 
     @RequestMapping(value = "/exercise/performed/update")
@@ -102,9 +106,10 @@ final class ExerciseController extends AbstractController {
             @Nonnull @RequestParam(value = "exercisePerformedId", required = true) final String exercisePerformedId,
             @RequestParam(value = "minutes", required = true, defaultValue = "1") final int minutes,
             @Nonnull @RequestParam(value = "action", required = true) final String action,
+            @Nonnull final HttpServletRequest request,
             @Nonnull final Model model
     ) {
-        final UserDTO userDTO = currentAuthenticatedUser();
+        final UserDTO userDTO = currentAuthenticatedUser(request);
         final UUID exercisePerformedUUID = UUID.fromString(exercisePerformedId);
         final ExercisePerformedDTO exercisePerformedDTO = exerciseService.findExercisePerformedById(exercisePerformedUUID);
         final String dateString = dateFormat.format(exercisePerformedDTO.getDate());
@@ -115,7 +120,7 @@ final class ExerciseController extends AbstractController {
         } else if (action.equalsIgnoreCase("delete")) {
             exerciseService.deleteExercisePerformed(exercisePerformedUUID);
         }
-        return viewMainExercisePage(dateString, model);
+        return viewMainExercisePage(dateString, request, model);
     }
 
     @RequestMapping(value = "/exercise/bycategory/{category}")

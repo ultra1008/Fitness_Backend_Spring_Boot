@@ -1,12 +1,12 @@
 package com.steveperkins.fitnessjiffy.controller;
 
-import com.steveperkins.fitnessjiffy.config.SecurityConfig;
 import com.steveperkins.fitnessjiffy.dto.UserDTO;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import com.steveperkins.fitnessjiffy.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -24,18 +24,15 @@ public abstract class AbstractController {
 
     final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+    @Autowired
+    protected UserService userService;
+
     /**
      * Used by child class controllers to obtain the currently authenticated user from Spring Security.
      */
     @Nullable
-    final UserDTO currentAuthenticatedUser() {
-        UserDTO userDTO = null;
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof SecurityConfig.SpringUserDetails) {
-            final SecurityConfig.SpringUserDetails userDetails = (SecurityConfig.SpringUserDetails) authentication.getPrincipal();
-            userDTO = userDetails.getUserDTO();
-        }
-        return userDTO;
+    final UserDTO currentAuthenticatedUser(final HttpServletRequest request) {
+        return userService.findByEmail((String) request.getAttribute("email"));
     }
 
     @Nonnull
