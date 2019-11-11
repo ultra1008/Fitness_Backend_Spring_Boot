@@ -5,8 +5,7 @@ import com.steveperkins.fitnessjiffy.dto.UserDTO;
 import com.steveperkins.fitnessjiffy.service.ReportDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Nonnull;
@@ -23,15 +22,13 @@ final class ReportController extends AbstractController {
         this.reportDataService = reportDataService;
     }
 
-    @RequestMapping(value = {"/report"}, method = RequestMethod.GET)
-    @Nonnull
+    @GetMapping(value = "/report")
     public final String viewMainReportPage() {
         return REPORT_TEMPLATE;
     }
 
-    @RequestMapping(value = {"/report/get"}, method = RequestMethod.GET)
+    @GetMapping(value = "/report/get")
     @ResponseBody
-    @Nonnull
     public final List<ReportDataDTO> getReportData(@Nonnull final HttpServletRequest request) {
         final UserDTO userDTO = currentAuthenticatedUser(request);
         return reportDataService.findByUser(userDTO.getId());

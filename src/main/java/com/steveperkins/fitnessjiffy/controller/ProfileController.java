@@ -6,10 +6,7 @@ import com.steveperkins.fitnessjiffy.dto.WeightDTO;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -21,16 +18,11 @@ import java.util.TreeSet;
 @Controller
 final class ProfileController extends AbstractController {
 
-    @RequestMapping(value = {"/", "/profile"}, method = RequestMethod.GET)
-    @Nonnull
+    @GetMapping(value = {"/", "/profile"})
     public final String viewMainProfilePage(
-            @Nullable
-            @RequestParam(value = "date", required = false)
-            final String dateString,
-
-            @Nonnull final HttpServletRequest request,
-
-            @Nonnull final Model model
+            @Nullable @RequestParam(value = "date", required = false) final String dateString,
+            final HttpServletRequest request,
+            final Model model
     ) {
         final UserDTO userDTO = currentAuthenticatedUser(request);
         final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
@@ -50,42 +42,17 @@ final class ProfileController extends AbstractController {
         return PROFILE_TEMPLATE;
     }
 
-    @RequestMapping(value = {"/profile/save"}, method = RequestMethod.POST)
-    @Nonnull
+    @PostMapping(value = "/profile/save")
     public final String updateProfile(
-            @Nonnull
-            @RequestParam(value = "date", required = false)
-            final String dateString,
-
-            @Nonnull
-            @RequestParam(value = "currentPassword")
-            final String currentPassword,
-
-            @Nonnull
-            @RequestParam(value = "newPassword")
-            final String newPassword,
-
-            @Nonnull
-            @RequestParam(value = "reenterNewPassword")
-            final String reenterNewPassword,
-
-            @RequestParam(value = "heightFeet")
-            final int heightFeet,
-
-            @RequestParam(value = "heightInches")
-            final int heightInches,
-
-            @Nonnull
-            @ModelAttribute("user")
-            final UserDTO userDTO,
-
-            @Nonnull
-            final BindingResult result,
-
-            @Nonnull
+            @Nonnull @RequestParam(value = "date", required = false) final String dateString,
+            @Nonnull @RequestParam(value = "currentPassword") final String currentPassword,
+            @Nonnull @RequestParam(value = "newPassword") final String newPassword,
+            @Nonnull @RequestParam(value = "reenterNewPassword") final String reenterNewPassword,
+            @RequestParam(value = "heightFeet") final int heightFeet,
+            @RequestParam(value = "heightInches") final int heightInches,
+            @Nonnull @ModelAttribute("user") final UserDTO userDTO,
+            @Nonnull final BindingResult result,
             final HttpServletRequest request,
-
-            @Nonnull
             final Model model
     ) {
         if (currentPassword == null || currentPassword.isEmpty()) {
@@ -108,21 +75,11 @@ final class ProfileController extends AbstractController {
         return viewMainProfilePage(dateString, request, model);
     }
 
-    @RequestMapping(value = {"/profile/weight/save"}, method = RequestMethod.POST)
-    @Nonnull
+    @PostMapping(value = "/profile/weight/save")
     public final String createOrUpdateWeight(
-        @Nonnull
-        @RequestParam(value = "weightEntry", defaultValue = "0")
-        final double weightEntry,
-
-        @Nullable
-        @RequestParam(value = "dateString", required = false)
-        final String dateString,
-
-        @Nonnull
+        @RequestParam(value = "weightEntry", defaultValue = "0") final double weightEntry,
+        @Nullable @RequestParam(value = "dateString", required = false) final String dateString,
         final HttpServletRequest request,
-
-        @Nonnull
         final Model model
     ) {
         final UserDTO userDTO = currentAuthenticatedUser(request);
