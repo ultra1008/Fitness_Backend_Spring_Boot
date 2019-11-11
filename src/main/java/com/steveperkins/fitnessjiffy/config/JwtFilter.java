@@ -21,7 +21,7 @@ import java.util.Optional;
 
 public class JwtFilter extends GenericFilterBean {
 
-    final static private List<String> EXCLUDED_URIS = Arrays.asList("/login", "/favicon.ico");
+    final static private List<String> EXCLUDED_URIS = Arrays.asList("/login.html", "/userpass", "/favicon.ico");
 
     @Override
     public void doFilter(
@@ -32,7 +32,10 @@ public class JwtFilter extends GenericFilterBean {
         final HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         // TODO: More robust route matching
         // TODO: Will probably need separate filters for the "page load" stuff, versus the AJAX "api" stuff
-        if (EXCLUDED_URIS.contains(httpServletRequest.getRequestURI()) || httpServletRequest.getRequestURI().startsWith("/static")) {
+        if (
+                EXCLUDED_URIS.contains(httpServletRequest.getRequestURI())
+                    || httpServletRequest.getRequestURI().startsWith("/static")
+        ) {
             chain.doFilter(request, response);
             return;
         }
@@ -49,7 +52,7 @@ public class JwtFilter extends GenericFilterBean {
                     .substring(7);
         if (token.isEmpty()) {
             logger.error("No valid Authorization header or cookie value found");
-            ((HttpServletResponse) response).sendRedirect("/login");
+            ((HttpServletResponse) response).sendRedirect("/login.html");
             return;
         }
 
@@ -58,12 +61,12 @@ public class JwtFilter extends GenericFilterBean {
             claims = Jwts.parser().setSigningKey("secretkey").parseClaimsJws(token).getBody();
         } catch (final SignatureException e) {
             logger.error("Invalid token");
-            ((HttpServletResponse) response).sendRedirect("/login");
+            ((HttpServletResponse) response).sendRedirect("/login.html");
             return;
         }
 
         if (claims.getExpiration().before(new Date())) {
-            ((HttpServletResponse) response).sendRedirect("/login?logout=true");
+            ((HttpServletResponse) response).sendRedirect("/login.html?logout=true");
             return;
         }
 

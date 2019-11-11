@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FitnessJiffy</title>
+
+    <!-- Version @application.version@ -->
+    <!-- TODO: Have this version value overwritten at build time by Gradle/Maven -->
+
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/static/css/main.css" rel="stylesheet"/>
+
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+              (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-28600243-4', 'auto');
+        ga('send', 'pageview');
+    </script>
+</head>
+
+<body>
+<div class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand">FitnessJiffy</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/food">Food</a></li>
+                <li><a href="/exercise">Exercise</a></li>
+                <li><a href="/report">Reports</a></li>
+            </ul>
+            <form id="logoutForm" action="/logout" method="post">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="javascript:{}" onclick="document.getElementById('logoutForm').submit();">Logout</a></li>
+                </ul>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="page-container">
+    <div class="container main-container">
+        <div class="row padded-bottom"/>
+        <div class="row padded-bottom"/>
+        <div class="row padded-bottom"/>
+        <div class="row padded-bottom"/>
+        <div class="row padded-bottom"/>
+        <div id="error" class="row" style="visibility: hidden">
+            <div class="center-block center-content padded-bottom">
+                Invalid username and password.
+            </div>
+        </div>
+        <div id="logout" class="row" style="visibility: hidden">
+            <div class="center-block center-content padded-bottom">
+                You have been logged out.
+            </div>
+        </div>
+        <div class="row padded-bottom"/>
+        <form action="/userpass" method="post">
+            <div class="row">
+                <div class="center-block center-content">
+                    <label> User Name : <input class="form-control" type="text" name="username"/> </label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="center-block center-content padded-bottom">
+                    <label> Password: <input class="form-control" type="password" name="password"/> </label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="center-block center-content">
+                    <button class="btn btn-default" type="submit">Sign In</button>
+                </div>
+            </div>
+            <div class="row padded-bottom"/>
+        </form>
+    </div>
+</div>
+<script>
+    $(function() {
+        var errorRegex = new RegExp('[?&]error=([^&#]*)', 'i');
+        if (errorRegex.exec(window.location.href)) {
+            $('#error').show();
+        }
+        var logoutRegex = new RegExp('[?&]logout=([^&#]*)', 'i');
+        if (logoutRegex.exec(window.location.href)) {
+            $('#logout').show();
+        }
+    });
+</script>
+</body>
+</html>
