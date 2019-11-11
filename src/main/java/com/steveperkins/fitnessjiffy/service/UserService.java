@@ -1,6 +1,5 @@
 package com.steveperkins.fitnessjiffy.service;
 
-import com.steveperkins.fitnessjiffy.config.SecurityConfig;
 import com.steveperkins.fitnessjiffy.domain.User;
 import com.steveperkins.fitnessjiffy.domain.Weight;
 import com.steveperkins.fitnessjiffy.dto.UserDTO;
@@ -9,12 +8,8 @@ import com.steveperkins.fitnessjiffy.dto.converter.UserToUserDTO;
 import com.steveperkins.fitnessjiffy.dto.converter.WeightToWeightDTO;
 import com.steveperkins.fitnessjiffy.repository.UserRepository;
 import com.steveperkins.fitnessjiffy.repository.WeightRepository;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
@@ -54,16 +49,12 @@ public final class UserService {
     }
 
     @Nullable
-    public UserDTO findUser(@Nonnull final UUID userId) {
-        final User user = userRepository.findOne(userId);
+    public UserDTO findByEmail(@Nullable final String email) {
+        if (email == null) {
+            return null;
+        }
+        final User user = userRepository.findByEmailEquals(email);
         return userDTOConverter.convert(user);
-    }
-
-    @Nonnull
-    public List<UserDTO> findAllUsers() {
-        return StreamSupport.stream(userRepository.findAll().spliterator(), false)
-                .map(userDTOConverter::convert)
-                .collect(toList());
     }
 
     public void createUser(
@@ -96,6 +87,10 @@ public final class UserService {
             @Nonnull final UserDTO userDTO,
             @Nullable final String newPassword
     ) {
+
+        // TODO: Require logout and re-login after changing the username (or password?)
+        // TODO: Don't allow email changes at all when using an external identity provider (e.g. Google)
+
         final User user = userRepository.findOne(userDTO.getId());
         user.setGender(userDTO.getGender());
         user.setBirthdate(userDTO.getBirthdate());
@@ -111,21 +106,7 @@ public final class UserService {
         final java.util.Date lastUpdatedDate = reportDataService.adjustDateForTimeZone(new Date(new java.util.Date().getTime()), ZoneId.of(userDTO.getTimeZone()));
         user.setLastUpdatedTime(new Timestamp(lastUpdatedDate.getTime()));
         userRepository.save(user);
-        refreshAuthenticatedUser();
         reportDataService.updateUserFromDate(user, new Date(System.currentTimeMillis()));
-    }
-
-    public void refreshAuthenticatedUser() {
-        final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
-        if (currentAuthentication.getPrincipal() instanceof SecurityConfig.SpringUserDetails) {
-            final SecurityConfig.SpringUserDetails currentPrincipal = (SecurityConfig.SpringUserDetails) currentAuthentication.getPrincipal();
-            final User refreshedUser = userRepository.findOne(currentPrincipal.getUserDTO().getId());
-            final SecurityConfig.SpringUserDetails refreshedPrincipal = new SecurityConfig.SpringUserDetails(userDTOConverter.convert(refreshedUser), refreshedUser.getPasswordHash());
-            final Authentication newAuthentication = new UsernamePasswordAuthenticationToken(refreshedPrincipal, refreshedUser.getPasswordHash(), currentPrincipal.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(newAuthentication);
-        } else {
-            System.out.println("The currently-authenticated principal is not an instance of type SecurityConfig.SpringUserDetails");
-        }
     }
 
     @Nullable
@@ -157,7 +138,6 @@ public final class UserService {
         }
         weightRepository.save(weight);
         reportDataService.updateUserFromDate(user, date);
-        refreshAuthenticatedUser();
     }
 
     public boolean verifyPassword(
@@ -165,8 +145,7 @@ public final class UserService {
             @Nonnull final String password
     ) {
         final User user = userRepository.findOne(userDTO.getId());
-        final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        return passwordEncoder.matches(password, user.getPasswordHash());
+        return BCrypt.checkpw(password, user.getPasswordHash());
     }
 
     @Nonnull

@@ -8,6 +8,7 @@ import com.steveperkins.fitnessjiffy.dto.FoodDTO;
 import com.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
 import com.steveperkins.fitnessjiffy.dto.ReportDataDTO;
 import com.steveperkins.fitnessjiffy.dto.UserDTO;
+import com.steveperkins.fitnessjiffy.dto.converter.UserToUserDTO;
 import com.steveperkins.fitnessjiffy.repository.FoodRepository;
 import com.steveperkins.fitnessjiffy.repository.ReportDataRepository;
 import com.steveperkins.fitnessjiffy.repository.UserRepository;
@@ -53,17 +54,14 @@ public class ServiceTest extends AbstractTest {
     @Autowired
     ReportDataRepository reportDataRepository;
 
+    @Autowired
+    UserToUserDTO userDTOConverter;
+
     @Test
     public void testUserService() {
-        // Test get all users
-        final List<UserDTO> allUsers = userService.findAllUsers();
-        assertEquals(1, allUsers.size());
+        assertNull(userService.findByEmail(null));
+        assertNull(userService.findByEmail("john.doe@fake.com"));
 
-        // Test get a single user by ID
-        final UserDTO user = userService.findUser(allUsers.get(0).getId());
-        assertNotNull(user);
-
-        // Test create user
         final UserDTO newUser = new UserDTO(
                 UUID.randomUUID(),
                 User.Gender.MALE,
@@ -80,7 +78,7 @@ public class ServiceTest extends AbstractTest {
                 30
         );
         userService.createUser(newUser, "password");
-        assertEquals(2, userService.findAllUsers().size());
+        assertNotNull(userService.findByEmail("john.doe@fake.com"));
 
         // Test password verification
         assertTrue(userService.verifyPassword(newUser, "password"));
@@ -90,7 +88,8 @@ public class ServiceTest extends AbstractTest {
     @Test
     public void testFoodService() {
         // Test get recently-eaten foods (NOTE: the most recent date in the test data set is 2013-12-12).
-        final UserDTO user = userService.findAllUsers().get(0);
+//        final UserDTO user = userService.findAllUsers().get(0);
+        final UserDTO user = userDTOConverter.convert(userRepository.findAll().iterator().next());
         final Calendar december11 = new GregorianCalendar(2013, Calendar.DECEMBER, 11);
         final Date currentDate = new Date(december11.getTimeInMillis());
         final List<FoodDTO> recentFoods = foodService.findEatenRecently(user.getId(), currentDate);
@@ -182,7 +181,7 @@ public class ServiceTest extends AbstractTest {
     @Test
     public void testExerciseService() throws ParseException {
         // Test retrieving exercises performed on a specific date
-        final UserDTO user = userService.findAllUsers().get(0);
+        final UserDTO user = userDTOConverter.convert(userRepository.findAll().iterator().next());
         final Date exercisePerformedDate = new Date(simpleDateFormat.parse("2012-06-30").getTime());
         final List<ExercisePerformedDTO> exercisePerformedDTOs = exerciseService.findPerformedOnDate(user.getId(), exercisePerformedDate);
         assertEquals(1, exercisePerformedDTOs.size());

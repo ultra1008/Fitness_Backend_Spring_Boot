@@ -25,21 +25,19 @@ repositories {
 }
 
 dependencies {
-    compile("com.google.code.findbugs:jsr305:3.0.1")
-    compile("org.springframework.boot:spring-boot-starter-thymeleaf") {
-        exclude module: "spring-boot-starter-tomcat"
+    compile 'com.google.code.findbugs:jsr305:3.0.1'
+    compile ('org.springframework.boot:spring-boot-starter-thymeleaf') {
+        exclude module: 'spring-boot-starter-tomcat'
     }
-    compile("org.springframework.boot:spring-boot-starter-undertow")
+    compile 'org.springframework.boot:spring-boot-starter-undertow'
+    compile 'io.jsonwebtoken:jjwt:0.7.0'
+    compile 'de.svenkubiak:jBCrypt:0.4.1'
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+    compile 'mysql:mysql-connector-java:6.0.5'
+    compile 'org.flywaydb:flyway-core:4.0.3'
 
-    compile("org.springframework.boot:spring-boot-starter-security")
-    compile("io.jsonwebtoken:jjwt:0.7.0")
-
-    compile("org.springframework.boot:spring-boot-starter-data-jpa")
-    compile("mysql:mysql-connector-java:6.0.5")
-    compile("org.flywaydb:flyway-core:4.0.3")
-
-    testCompile("org.springframework.boot:spring-boot-starter-test")
-    testCompile("com.h2database:h2:1.4.193")
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+    testCompile 'com.h2database:h2:1.4.193'
 }
 
 task wrapper(type: Wrapper) {

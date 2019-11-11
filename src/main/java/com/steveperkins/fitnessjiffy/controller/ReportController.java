@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Nonnull;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Controller
@@ -31,8 +32,8 @@ final class ReportController extends AbstractController {
     @RequestMapping(value = {"/report/get"}, method = RequestMethod.GET)
     @ResponseBody
     @Nonnull
-    public final List<ReportDataDTO> getReportData() {
-        final UserDTO userDTO = currentAuthenticatedUser();
+    public final List<ReportDataDTO> getReportData(@Nonnull final HttpServletRequest request) {
+        final UserDTO userDTO = currentAuthenticatedUser(request);
         return reportDataService.findByUser(userDTO.getId());
     }
 
