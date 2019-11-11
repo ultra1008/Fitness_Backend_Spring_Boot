@@ -7,11 +7,7 @@ import com.steveperkins.fitnessjiffy.service.ExerciseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -41,16 +37,11 @@ final class ExerciseController extends AbstractController {
         this.exerciseService = exerciseService;
     }
 
-    @RequestMapping(value = "/exercise", method = RequestMethod.GET)
-    @Nonnull
+    @GetMapping(value = "/exercise")
     public final String viewMainExercisePage(
-            @Nullable
-            @RequestParam(value = "date", required = false)
-            final String dateString,
-
-            @Nonnull final HttpServletRequest request,
-
-            @Nonnull final Model model
+            @Nullable @RequestParam(value = "date", required = false) final String dateString,
+            final HttpServletRequest request,
+            final Model model
     ) {
         final UserDTO userDTO = currentAuthenticatedUser(request);
         final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
@@ -86,12 +77,11 @@ final class ExerciseController extends AbstractController {
     }
 
     @RequestMapping(value = "/exercise/performed/add")
-    @Nonnull
     public final String addExercisePerformed(
             @Nonnull @RequestParam(value = "exerciseId", required = true) final String exerciseIdString,
             @Nullable @RequestParam(value = "date", required = false) final String dateString,
-            @Nonnull final HttpServletRequest request,
-            @Nonnull final Model model
+            final HttpServletRequest request,
+            final Model model
     ) {
         final UserDTO userDTO = currentAuthenticatedUser(request);
         final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
@@ -101,13 +91,12 @@ final class ExerciseController extends AbstractController {
     }
 
     @RequestMapping(value = "/exercise/performed/update")
-    @Nonnull
     public final String updateExercisePerformed(
             @Nonnull @RequestParam(value = "exercisePerformedId", required = true) final String exercisePerformedId,
             @RequestParam(value = "minutes", required = true, defaultValue = "1") final int minutes,
             @Nonnull @RequestParam(value = "action", required = true) final String action,
-            @Nonnull final HttpServletRequest request,
-            @Nonnull final Model model
+            final HttpServletRequest request,
+            final Model model
     ) {
         final UserDTO userDTO = currentAuthenticatedUser(request);
         final UUID exercisePerformedUUID = UUID.fromString(exercisePerformedId);
@@ -124,18 +113,14 @@ final class ExerciseController extends AbstractController {
     }
 
     @RequestMapping(value = "/exercise/bycategory/{category}")
-    @Nonnull
-    public final
     @ResponseBody
-    List<ExerciseDTO> findExercisesInCategory(@Nonnull @PathVariable final String category) {
+    public final List<ExerciseDTO> findExercisesInCategory(@Nonnull @PathVariable final String category) {
         return exerciseService.findExercisesInCategory(category);
     }
 
     @RequestMapping(value = "/exercise/search/{searchString}")
-    @Nonnull
-    public final
     @ResponseBody
-    List<ExerciseDTO> searchExercises(@Nonnull @PathVariable final String searchString) {
+    public final List<ExerciseDTO> searchExercises(@Nonnull @PathVariable final String searchString) {
         return exerciseService.searchExercises(searchString);
     }
 
