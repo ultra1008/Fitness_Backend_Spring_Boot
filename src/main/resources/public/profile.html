@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+<html>
 <head>
     <title>Profile</title>
 
@@ -22,26 +22,31 @@
 
     </script>
 
-    <script th:inline="javascript">
-    /*<![CDATA[*/
-    // Parse (or initialize) the current-date variable, and the user ID
-    var dateString = /*[[${dateString}]]*/;
-    if (!dateString || dateString === "") {
-        var date = new Date();
-        var year = date.getFullYear();
-        var month = date.getMonth() + 1;
-        if (month < 10) {
-            month = "0" + month;
-        }
-        var day = date.getDate();
-        if (day < 10) {
-            day = "0" + day;
-        }
-        dateString = year + "-" + month + "-" + day;
-    }
-
-    /** On document load, initialize the datepicker widgets. */
+    <script>
     $(function () {
+        function getRequestParam(name){
+            if (name = (new RegExp('[?&amp;]' + encodeURIComponent(name) + '=([^&amp;]*)')).exec(window.location.search)) {
+                return decodeURIComponent(name[1]);
+            }
+        }
+
+        // Parse (or initialize) the current-date variable, and the user ID
+        var dateString = getRequestParam("date")
+        if (!dateString) {
+            var date = new Date();
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1;
+            if (month < 10) {
+                month = "0" + month;
+            }
+            var day = date.getDate();
+            if (day < 10) {
+                day = "0" + day;
+            }
+            dateString = year + "-" + month + "-" + day;
+        }
+
+        // On document load, initialize the datepicker widgets.
         $("#datepicker-weight").datepicker({
             format: "yyyy-mm-dd",
             autoclose: true,
@@ -57,8 +62,31 @@
             autoclose: true,
             todayBtn: "linked"
         });
+
+        // Get weight for selected date
+        $.ajax({
+            url: '/api/user/weight/' + dateString
+        }).done(function(weight) {
+            $('#weightEntry').val(weight);
+        });
+
+        // Register event handler to update weight when the button is clicked
+        $('#weightEntrySubmit').click(function() {
+            var data = {};
+            data['weight'] = $('#weightEntry').val();
+            $.ajax({
+                method: 'POST',
+                contentType: 'application/json',
+                url: '/api/user/weight/' + dateString,
+                data: JSON.stringify(data)
+            }).done(function(weight) {
+                // TODO: Update status
+            }).fail(function(jqXHR, textStatus) {
+                // TODO: Better error handling?
+                alert("Request failed: " + jqXHR.status);
+            });
+        });
     });
-    /*]]>*/
     </script>
 
 </head>
@@ -71,7 +99,7 @@
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="profile">Profile</a></li>
+                <li class="active"><a href="/profile.html">Profile</a></li>
                 <li><a href="/food">Food</a></li>
                 <li><a href="/exercise">Exercise</a></li>
                 <li><a href="/report">Reports</a></li>
@@ -86,35 +114,33 @@
 </div>
 <div class="page-container">
     <div class="container main-container">
-        <form action="/profile/weight/save" method="post">
-            <div class="row">
-                <div class="center-block center-content">
-                    <h2>Weight</h2>
-                </div>
+        <div class="row">
+            <div class="center-block center-content">
+                <h2>Weight</h2>
             </div>
-            <div class="row padded-bottom">
-                <div class="center-block center-content input-append date">
-                    <label>
-                        Date:
-                        <input id="datepicker-weight" name="dateString" class="datepicker form-control" size="10"/>
-                        <span class="add-on glyphicon glyphicon-calendar"></span>
-                    </label>
-                </div>
+        </div>
+        <div class="row padded-bottom">
+            <div class="center-block center-content input-append date">
+                <label>
+                    Date:
+                    <input id="datepicker-weight" name="dateString" class="datepicker form-control" size="10"/>
+                    <span class="add-on glyphicon glyphicon-calendar"></span>
+                </label>
             </div>
-            <div class="row padded-bottom">
-                <div class="center-block center-content">
-                    <label>
-                        <input class="form-control" type="text" id="weightEntry" name="weightEntry" th:value="${weightEntry}" size="5"/>
-                        lbs.
-                    </label>
-                </div>
+        </div>
+        <div class="row padded-bottom">
+            <div class="center-block center-content">
+                <label>
+                    <input class="form-control" type="text" id="weightEntry" name="weightEntry" size="5"/>
+                    lbs.
+                </label>
             </div>
-            <div class="row padded-bottom">
-                <div class="center-block center-content">
-                    <button type="submit" class="btn btn-default">Update Weight for Date</button>
-                </div>
+        </div>
+        <div class="row padded-bottom">
+            <div class="center-block center-content">
+                <button id="weightEntrySubmit" type="button" class="btn btn-default">Update Weight for Date</button>
             </div>
-        </form>
+        </div>
         <form th:object="${user}" action="/profile/save" method="post">
             <input type="hidden" th:field="*{id}"/>
             <div class="row">
