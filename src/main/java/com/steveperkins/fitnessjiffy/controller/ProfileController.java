@@ -1,49 +1,87 @@
 package com.steveperkins.fitnessjiffy.controller;
 
-import com.steveperkins.fitnessjiffy.domain.User;
 import com.steveperkins.fitnessjiffy.dto.UserDTO;
 import com.steveperkins.fitnessjiffy.dto.WeightDTO;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
-import java.sql.Date;
-import java.time.ZoneId;
-import java.util.TreeSet;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Map;
 
 @Controller
 final class ProfileController extends AbstractController {
 
-    @GetMapping(value = {"/", "/profile"})
-    public final String viewMainProfilePage(
-            @Nullable @RequestParam(value = "date", required = false) final String dateString,
-            final HttpServletRequest request,
-            final Model model
-    ) {
-        final UserDTO userDTO = currentAuthenticatedUser(request);
-        final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
-        final WeightDTO weight = userService.findWeightOnDate(userDTO, date);
-        final String weightEntry = (weight == null) ? "" : String.valueOf(weight.getPounds());
-        final int heightFeet = (int) (userDTO.getHeightInInches() / 12);
-        final int heightInches = (int) userDTO.getHeightInInches() % 12;
-
-        model.addAttribute("allActivityLevels", User.ActivityLevel.values());
-        model.addAttribute("allGenders", User.Gender.values());
-        model.addAttribute("allTimeZones", new TreeSet<String>(ZoneId.getAvailableZoneIds()));
-        model.addAttribute("user", userDTO);
-        model.addAttribute("dateString", dateString);
-        model.addAttribute("weightEntry", weightEntry);
-        model.addAttribute("heightFeet", heightFeet);
-        model.addAttribute("heightInches", heightInches);
-        return PROFILE_TEMPLATE;
+    @GetMapping(value = "/")
+    public final void handleRootUrl(final HttpServletResponse response) throws IOException {
+        response.sendRedirect("/profile.html");
     }
 
+    @GetMapping(value = "/api/user/weight/{date}")
+    @ResponseBody
+    public final Double loadWeight(
+            @Nullable @PathVariable(name = "date", required = false) final String dateString,
+            final HttpServletRequest request
+    ) {
+        final UserDTO userDTO = currentAuthenticatedUser(request);
+        final java.sql.Date date = (dateString == null || dateString.isEmpty())
+                ? todaySqlDateForUser(userDTO)
+                : stringToSqlDate(dateString);
+        final WeightDTO weightDTO = userService.findWeightOnDate(userDTO, date);
+        return weightDTO == null ? null : weightDTO.getPounds();
+    }
+
+    @PostMapping(value = "/api/user/weight/{date}", consumes = "application/json")
+    public final void saveWeight(
+            @Nullable @PathVariable(name = "date", required = false) final String dateString,
+            @Nullable @RequestBody final Map<String, Object> payload,
+            final HttpServletRequest request,
+            final HttpServletResponse response
+    ) throws IOException {
+        double weight;
+        try {
+            weight = Double.parseDouble(payload.get("weight").toString());
+        } catch (NullPointerException | NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+        final UserDTO userDTO = currentAuthenticatedUser(request);
+        final java.sql.Date date = (dateString == null || dateString.isEmpty())
+                ? todaySqlDateForUser(userDTO)
+                : stringToSqlDate(dateString);
+        userService.updateWeight(userDTO, date, weight);
+    }
+
+//    @GetMapping(value = "/profile")
+//    public final String viewMainProfilePage(
+//            @Nullable @RequestParam(value = "date", required = false) final String dateString,
+//            final HttpServletRequest request,
+//            final Model model
+//    ) {
+//        final UserDTO userDTO = currentAuthenticatedUser(request);
+//        final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
+//        final WeightDTO weight = userService.findWeightOnDate(userDTO, date);
+//        final String weightEntry = (weight == null) ? "" : String.valueOf(weight.getPounds());
+//        final int heightFeet = (int) (userDTO.getHeightInInches() / 12);
+//        final int heightInches = (int) userDTO.getHeightInInches() % 12;
+//
+//        model.addAttribute("allActivityLevels", User.ActivityLevel.values());
+//        model.addAttribute("allGenders", User.Gender.values());
+//        model.addAttribute("allTimeZones", new TreeSet<String>(ZoneId.getAvailableZoneIds()));
+//        model.addAttribute("user", userDTO);
+//        model.addAttribute("dateString", dateString);
+//        model.addAttribute("weightEntry", weightEntry);
+//        model.addAttribute("heightFeet", heightFeet);
+//        model.addAttribute("heightInches", heightInches);
+//        return PROFILE_TEMPLATE;
+//    }
+
     @PostMapping(value = "/profile/save")
-    public final String updateProfile(
+    public final void updateProfile(
             @Nonnull @RequestParam(value = "date", required = false) final String dateString,
             @Nonnull @RequestParam(value = "currentPassword") final String currentPassword,
             @Nonnull @RequestParam(value = "newPassword") final String newPassword,
@@ -51,10 +89,9 @@ final class ProfileController extends AbstractController {
             @RequestParam(value = "heightFeet") final int heightFeet,
             @RequestParam(value = "heightInches") final int heightInches,
             @Nonnull @ModelAttribute("user") final UserDTO userDTO,
-            @Nonnull final BindingResult result,
-            final HttpServletRequest request,
+            final HttpServletResponse response,
             final Model model
-    ) {
+    ) throws IOException {
         if (currentPassword == null || currentPassword.isEmpty()) {
             model.addAttribute("profileSaveError", "You must verify the current password in order to make any changes to this profile.");
         } else if (!userService.verifyPassword(userDTO, currentPassword)) {
@@ -72,21 +109,7 @@ final class ProfileController extends AbstractController {
                 userService.updateUser(userDTO, newPassword);
             }
         }
-        return viewMainProfilePage(dateString, request, model);
-    }
-
-    @PostMapping(value = "/profile/weight/save")
-    public final String createOrUpdateWeight(
-        @RequestParam(value = "weightEntry", defaultValue = "0") final double weightEntry,
-        @Nullable @RequestParam(value = "dateString", required = false) final String dateString,
-        final HttpServletRequest request,
-        final Model model
-    ) {
-        final UserDTO userDTO = currentAuthenticatedUser(request);
-        final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
-        userService.updateWeight(userDTO, date, weightEntry);
-
-        return viewMainProfilePage(dateString, request, model);
+        response.sendRedirect("/profile.html");
     }
 
 }

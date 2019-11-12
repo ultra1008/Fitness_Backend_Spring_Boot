@@ -38,7 +38,7 @@ public class AuthController extends AbstractController {
                 .signWith(SignatureAlgorithm.HS256, "secretkey")
                 .compact();
         response.addCookie(new Cookie("Authorization", "Bearer " + token));
-        response.sendRedirect("/profile");
+        response.sendRedirect("/profile.html");
     }
 
     @PostMapping(value = "/logout")

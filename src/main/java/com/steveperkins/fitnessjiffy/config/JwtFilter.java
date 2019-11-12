@@ -19,9 +19,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-public class JwtFilter extends GenericFilterBean {
+class JwtFilter extends GenericFilterBean {
 
-    final static private List<String> EXCLUDED_URIS = Arrays.asList("/login.html", "/userpass", "/favicon.ico");
+    final static private List<String> EXCLUDED_URIS = Arrays.asList(
+            "/login.html",
+            "/profile.html",
+            "/userpass",
+            "/favicon.ico"
+    );
 
     @Override
     public void doFilter(
