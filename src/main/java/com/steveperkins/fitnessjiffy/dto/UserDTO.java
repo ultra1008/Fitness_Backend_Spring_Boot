@@ -1,5 +1,6 @@
 package com.steveperkins.fitnessjiffy.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.steveperkins.fitnessjiffy.domain.User;
 
 import javax.annotation.Nonnull;
@@ -10,7 +11,7 @@ import java.util.UUID;
 
 public final class UserDTO implements Serializable {
 
-    private UUID id;
+    @JsonIgnore private UUID id;
     private User.Gender gender;
     private Date birthdate;
     private double heightInInches;
