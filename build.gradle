@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.*
+
 buildscript {
     ext {
         springBootVersion = '1.4.1.RELEASE'
@@ -10,6 +12,8 @@ buildscript {
     }
 }
 
+version = '2.0.0-SNAPSHOT'
+
 apply plugin: 'java'
 apply plugin: 'spring-boot'
 apply plugin: 'idea'
@@ -17,7 +21,7 @@ apply plugin: 'eclipse'
 
 jar {
     baseName = 'fitnessjiffy-spring'
-    version =  '2.0.0-SNAPSHOT'
+    version =  version
 }
 
 repositories {
@@ -38,6 +42,12 @@ dependencies {
 
     testCompile 'org.springframework.boot:spring-boot-starter-test'
     testCompile 'com.h2database:h2:1.4.193'
+}
+
+processResources {
+    filter ReplaceTokens, tokens: [
+            "application.version": project.property("version")
+    ]
 }
 
 task wrapper(type: Wrapper) {
