@@ -3,8 +3,9 @@ package com.steveperkins.fitnessjiffy.controller;
 import com.steveperkins.fitnessjiffy.dto.UserDTO;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -16,9 +17,19 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-@Controller
+@RestController
 public class AuthController extends AbstractController {
 
+    /**
+     * TODO: Make this more RESTful... just return the JWT, and let the client worry about storing it and redirecting to an appropriate landing page
+     * TODO: Change the endpoint URL to be more consistent with the other new ones (i.e. "/api/...").
+     *
+     * @param username
+     * @param password
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     @PostMapping(value = "/userpass")
     public void doLogin(
             @RequestParam final String username,
@@ -41,6 +52,13 @@ public class AuthController extends AbstractController {
         response.sendRedirect("/profile.html");
     }
 
+    /**
+     * TODO: Make this more RESTful.  If the client handles deletion of the JWT token, then is this endpoint even necessary at all?
+     *
+     * @param request
+     * @param response
+     * @throws IOException
+     */
     @PostMapping(value = "/logout")
     public void doLogout(
             final HttpServletRequest request,

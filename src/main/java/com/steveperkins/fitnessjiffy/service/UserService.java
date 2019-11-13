@@ -83,14 +83,19 @@ public final class UserService {
         updateUser(userDTO, null);
     }
 
+    /**
+     * TODO: Document
+     * TODO: Require logout and re-login after changing the username (or password?)
+     * TODO: Don't allow email changes at all when using an external identity provider (e.g. Google)
+     * TODO: On second thought, maybe just don't allow email changes period?
+     *
+     * @param userDTO
+     * @param newPassword
+     */
     public void updateUser(
             @Nonnull final UserDTO userDTO,
             @Nullable final String newPassword
     ) {
-
-        // TODO: Require logout and re-login after changing the username (or password?)
-        // TODO: Don't allow email changes at all when using an external identity provider (e.g. Google)
-
         final User user = userRepository.findOne(userDTO.getId());
         user.setGender(userDTO.getGender());
         user.setBirthdate(userDTO.getBirthdate());
