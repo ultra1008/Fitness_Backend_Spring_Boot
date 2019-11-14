@@ -13,6 +13,7 @@
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/bootstrap/js/bootstrap.min.js"></script>
     <script src="/static/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <script src="/static/js/common.js"></script>
     <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
               (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -22,19 +23,12 @@
         ga('create', 'UA-28600243-4', 'auto');
         ga('send', 'pageview');
     </script>
-
     <script>
     $(function () {
 
         setupWeight();
         setupProfile();
         setupPassword();
-
-        function getRequestParam(name){
-            if (name = (new RegExp('[?&amp;]' + encodeURIComponent(name) + '=([^&amp;]*)')).exec(window.location.search)) {
-                return decodeURIComponent(name[1]);
-            }
-        }
 
         function clearFlashMessages() {
             $('#profileSuccessRow').hide();
@@ -160,7 +154,7 @@
                 data['lastName'] = $('#lastName').val();
                 data['gender'] = $('input[name=gender]:checked').val();
                 data['birthdate'] = $('#datepicker-birthdate').val();
-                data['heightInInches'] = $('#heightFeet').val() * 12 + $('#heightInches').val();
+                data['heightInInches'] = parseInt($('#heightFeet').val()) * 12 + parseInt($('#heightInches').val());
                 data['activityLevel'] = $('#activityLevel').val();
                 data['timeZone'] = $('#timeZone').val();
 
@@ -199,13 +193,7 @@
                     $('#passwordSuccessRow').show();
                 }).fail(function(jqXHR, textStatus) {
                     console.log('POST /api/user/password request failed: ' + jqXHR.status);
-                    if (jqXHR.status == '400') {
-                        $('#passwordErrorMessage').text('The "New Password" and "Re-enter New Password" fields do not match');
-                    } else if (jqXHR.status == '403') {
-                        $('#passwordErrorMessage').text('The "Current Password" field does not match your current password');
-                    } else {
-                        $('#passwordErrorMessage').text('An unexpected error has occurred');
-                    }
+                    $('#passwordErrorMessage').text(jqXHR.responseText);
                     $('#passwordErrorRow').show();
                 });
             });
@@ -229,11 +217,9 @@
                 <li><a href="/exercise">Exercise</a></li>
                 <li><a href="/report">Reports</a></li>
             </ul>
-            <form id="logoutForm" action="/logout" method="post">
-                <ul class="nav navbar-nav navbar-right">
-                    <li><a href="javascript:{}" onclick="document.getElementById('logoutForm').submit();">Logout</a></li>
-                </ul>
-            </form>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="javascript:{}" id="logout">Logout</a></li>
+            </ul>
         </div>
     </div>
 </div>
@@ -306,7 +292,8 @@
                     <span id="maintenanceCalories"/>
                 </div>
             </div>
-            <div class="row padded-bottom"/>
+            <div class="row padded-bottom"></div>
+            <div class="row padded-bottom"></div>
             <div class="row padded-bottom">
                 <div class="col-sm-6 leftcolumn">
                     Email:

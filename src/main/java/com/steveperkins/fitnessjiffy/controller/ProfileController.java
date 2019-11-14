@@ -36,7 +36,7 @@ final class ProfileController extends AbstractController {
         final UserDTO userDTO = currentAuthenticatedUser(request);
         userDTO.setGender(User.Gender.fromString((String) payload.get("gender")));
         userDTO.setBirthdate(stringToSqlDate((String) payload.get("birthdate")));
-        userDTO.setHeightInInches(Double.parseDouble((String) payload.get("heightInInches")));
+        userDTO.setHeightInInches((Integer) payload.get("heightInInches"));
         userDTO.setActivityLevel(User.ActivityLevel.fromString((String) payload.get("activityLevel")));
         userDTO.setFirstName((String) payload.get("firstName"));
         userDTO.setLastName((String) payload.get("lastName"));
@@ -45,7 +45,7 @@ final class ProfileController extends AbstractController {
     }
 
     @PostMapping(value = "/api/user/password")
-    public final void savePassword(
+    public final String savePassword(
             @RequestBody final Map<String, Object> payload,
             final HttpServletRequest request,
             final HttpServletResponse response
@@ -56,16 +56,16 @@ final class ProfileController extends AbstractController {
 
         final UserDTO userDTO = currentAuthenticatedUser(request);
         if (!newPassword.equals(reenterNewPassword)) {
-            // "New Password" and "Re-enter New Password" fields don't match
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
+            return "The \"New Password\" and \"Re-enter New Password\" fields do not match";
         } else if (!userService.verifyPassword(userDTO, currentPassword)) {
             // "Current Password" field doesn't match the user's current password
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            return;
+            return "The \"Current Password\" field does not match your current password";
         }
 
         userService.updateUser(userDTO, newPassword);
+        return "Password changed";
     }
 
     @GetMapping(value = "/api/user/weight/{date}")

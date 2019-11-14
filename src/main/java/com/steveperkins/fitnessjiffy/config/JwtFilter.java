@@ -23,8 +23,7 @@ class JwtFilter extends GenericFilterBean {
 
     final static private List<String> EXCLUDED_URIS = Arrays.asList(
             "/login.html",
-            "/profile.html",
-            "/userpass",
+            "/api/auth/userpass",
             "/favicon.ico"
     );
 
@@ -37,6 +36,7 @@ class JwtFilter extends GenericFilterBean {
         final HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         // TODO: More robust route matching
         // TODO: Will probably need separate filters for the "page load" stuff, versus the AJAX "api" stuff
+        // TODO: Make "page load" stuff use cookies, and "api" stuff use headers exclusively
         if (
                 EXCLUDED_URIS.contains(httpServletRequest.getRequestURI())
                     || httpServletRequest.getRequestURI().startsWith("/static")
@@ -50,11 +50,9 @@ class JwtFilter extends GenericFilterBean {
                 ? httpServletRequest.getHeader("Authorization").substring(7)
                 : Arrays.stream(Optional.ofNullable(httpServletRequest.getCookies()).orElse(new Cookie[0]))
                     .filter(cookie -> cookie.getName().equals("Authorization"))
-                    .filter(cookie -> cookie.getValue().startsWith("Bearer "))
                     .findFirst()
-                    .orElse(new Cookie("Authorization", "Bearer "))
-                    .getValue()
-                    .substring(7);
+                    .orElse(new Cookie("Authorization", ""))
+                    .getValue();
         if (token.isEmpty()) {
             logger.error("No valid Authorization header or cookie value found");
             ((HttpServletResponse) response).sendRedirect("/login.html");

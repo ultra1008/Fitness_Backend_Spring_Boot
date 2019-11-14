@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/html">
 <head>
     <title>FitnessJiffy</title>
 
@@ -11,6 +11,7 @@
 
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/static/js/common.js"></script>
     <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
               (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -20,6 +21,55 @@
         ga('create', 'UA-28600243-4', 'auto');
         ga('send', 'pageview');
     </script>
+    <script>
+        $(function () {
+
+            // Display a flash message after logging out
+            if (getRequestParam('logout')) {
+                $('#logoutRow').show();
+            }
+
+            // Event handlers to login when the submit button is clicked, or when the Enter key is pressed
+            // in either the username or password fields
+            $('#username').keypress(function (e) {
+                var key = e.which;
+                if(key == 13) {
+                    login();
+                }
+            });
+            $('#password').keypress(function (e) {
+                var key = e.which;
+                if(key == 13) {
+                    login();
+                }
+            });
+            $('#loginSubmit').click(function() {
+                login();
+            });
+
+            function login() {
+                $('#errorRow').hide();
+                $('#logoutRow').hide();
+                var data = {};
+                data['username'] = $('#username').val();
+                data['password'] = $('#password').val();
+                $.ajax({
+                    method: 'POST',
+                    contentType: 'application/json',
+                    url: '/api/auth/userpass',
+                    data: JSON.stringify(data)
+                }).done(function(auth) {
+                    document.cookie = 'Authorization=' + auth.token + '; path=/';
+                    window.location = '/profile.html';
+                }).fail(function(jqXHR, textStatus) {
+                    console.log('POST /api/auth/userpass request failed: ' + jqXHR.status);
+                    var auth = JSON.parse(jqXHR.responseText);
+                    $('#errorMessage').text(auth.error);
+                    $('#errorRow').show();
+                });
+            }
+        });
+    </script>
 </head>
 
 <body>
@@ -28,70 +78,44 @@
         <div class="navbar-header">
             <a class="navbar-brand">FitnessJiffy</a>
         </div>
-        <div class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-                <li><a href="/profile.html">Profile</a></li>
-                <li><a href="/food">Food</a></li>
-                <li><a href="/exercise">Exercise</a></li>
-                <li><a href="/report">Reports</a></li>
-            </ul>
-            <form id="logoutForm" action="/logout" method="post">
-                <ul class="nav navbar-nav navbar-right">
-                    <li><a href="javascript:{}" onclick="document.getElementById('logoutForm').submit();">Logout</a></li>
-                </ul>
-            </form>
-        </div>
     </div>
 </div>
 <div class="page-container">
     <div class="container main-container">
-        <div class="row padded-bottom"/>
-        <div class="row padded-bottom"/>
-        <div class="row padded-bottom"/>
-        <div class="row padded-bottom"/>
-        <div class="row padded-bottom"/>
-        <div id="error" class="row" style="visibility: hidden">
-            <div class="center-block center-content padded-bottom">
-                Invalid username and password.
+        <div class="row padded-bottom"></div>
+        <div class="row padded-bottom"></div>
+        <div class="row padded-bottom"></div>
+        <div class="row padded-bottom"></div>
+        <div class="row padded-bottom"></div>
+        <div class="row padded-bottom"></div>
+        <section title="Login">
+            <div class="row" id="errorRow" style="display: none">
+                <div class="center-block center-content padded-bottom" id="errorMessage" style="color: red"></div>
             </div>
-        </div>
-        <div id="logout" class="row" style="visibility: hidden">
-            <div class="center-block center-content padded-bottom">
-                You have been logged out.
+            <div class="row" id="logoutRow" style="display: none">
+                <div class="center-block center-content padded-bottom">
+                    You have been logged out.
+                </div>
             </div>
-        </div>
-        <div class="row padded-bottom"/>
-        <form action="/userpass" method="post">
             <div class="row">
                 <div class="center-block center-content">
-                    <label> User Name : <input class="form-control" type="text" name="username"/> </label>
+                    <label> User Name : <input class="form-control" type="text" id="username"/> </label>
                 </div>
             </div>
             <div class="row">
                 <div class="center-block center-content padded-bottom">
-                    <label> Password: <input class="form-control" type="password" name="password"/> </label>
+                    <label> Password: <input class="form-control" type="password" id="password"/> </label>
                 </div>
             </div>
             <div class="row">
                 <div class="center-block center-content">
-                    <button class="btn btn-default" type="submit">Sign In</button>
+                    <button class="btn btn-default" type="button" id="loginSubmit">Sign In</button>
                 </div>
             </div>
             <div class="row padded-bottom"/>
-        </form>
+        </section>
+
     </div>
 </div>
-<script>
-    $(function() {
-        var errorRegex = new RegExp('[?&]error=([^&#]*)', 'i');
-        if (errorRegex.exec(window.location.href)) {
-            $('#error').show();
-        }
-        var logoutRegex = new RegExp('[?&]logout=([^&#]*)', 'i');
-        if (logoutRegex.exec(window.location.href)) {
-            $('#logout').show();
-        }
-    });
-</script>
 </body>
 </html>
