@@ -1,5 +1,6 @@
 package com.steveperkins.fitnessjiffy.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.steveperkins.fitnessjiffy.domain.Food;
 
 import javax.annotation.Nonnull;
@@ -11,7 +12,7 @@ import java.util.UUID;
 public final class FoodEatenDTO implements Serializable {
 
     private UUID id;
-    private UUID userId;
+    @JsonIgnore private UUID userId;
     private FoodDTO food;
     private Date date;
     private Food.ServingType servingType;

@@ -1,27 +1,26 @@
 package com.steveperkins.fitnessjiffy.controller;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.steveperkins.fitnessjiffy.domain.Food;
 
-import com.steveperkins.fitnessjiffy.dto.ExercisePerformedDTO;
 import com.steveperkins.fitnessjiffy.dto.FoodDTO;
 import com.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
 import com.steveperkins.fitnessjiffy.dto.UserDTO;
 import com.steveperkins.fitnessjiffy.service.ExerciseService;
 import com.steveperkins.fitnessjiffy.service.FoodService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-@Controller
+@RestController
 final class FoodController extends AbstractController {
 
     private final FoodService foodService;
@@ -36,56 +35,79 @@ final class FoodController extends AbstractController {
         this.exerciseService = exerciseService;
     }
 
-    @GetMapping(value = "/food")
-    public final String viewMainFoodPage(
-            @Nullable @RequestParam(value = "date", required = false) final String dateString,
-            final HttpServletRequest request,
-            final Model model
+    @GetMapping(value = "/api/foodeaten/{date}")
+    public final List<FoodEatenDTO> loadFoodsEaten(
+            @PathVariable(name = "date") final String dateString,
+            final HttpServletRequest request
     ) {
         final UserDTO userDTO = currentAuthenticatedUser(request);
         final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
-
-        final List<FoodDTO> foodsEatenRecently = foodService.findEatenRecently(userDTO.getId(), date);
-        final List<FoodEatenDTO> foodsEatenThisDate = foodService.findEatenOnDate(userDTO.getId(), date);
-        int caloriesForDay, fatForDay, saturatedFatForDay, sodiumForDay, carbsForDay, fiberForDay, sugarForDay, proteinForDay;
-        caloriesForDay = fatForDay = saturatedFatForDay = sodiumForDay = carbsForDay = fiberForDay = sugarForDay = proteinForDay = 0;
-        double pointsForDay = 0.0;
-        for (final FoodEatenDTO foodEaten : foodsEatenThisDate) {
-            caloriesForDay += foodEaten.getCalories();
-            fatForDay += foodEaten.getFat();
-            saturatedFatForDay += foodEaten.getSaturatedFat();
-            sodiumForDay += foodEaten.getSodium();
-            carbsForDay += foodEaten.getCarbs();
-            fiberForDay += foodEaten.getFiber();
-            sugarForDay += foodEaten.getSugar();
-            proteinForDay += foodEaten.getProtein();
-            pointsForDay += foodEaten.getPoints();
-        }
-        int netCaloriesForDay = caloriesForDay;
-        double netPointsForDay = pointsForDay;
-        for (final ExercisePerformedDTO exercisePerformed : exerciseService.findPerformedOnDate(userDTO.getId(), date)) {
-            netCaloriesForDay -= exercisePerformed.getCaloriesBurned();
-            netPointsForDay -= exercisePerformed.getPointsBurned();
-        }
-
-        model.addAttribute("user", userDTO);
-        model.addAttribute("dateString", dateString);
-        model.addAttribute("foodsEatenRecently", foodsEatenRecently);
-        model.addAttribute("foodsEatenThisDate", foodsEatenThisDate);
-        model.addAttribute("caloriesForDay", caloriesForDay);
-        model.addAttribute("fatForDay", fatForDay);
-        model.addAttribute("saturatedFatForDay", saturatedFatForDay);
-        model.addAttribute("sodiumForDay", sodiumForDay);
-        model.addAttribute("carbsForDay", carbsForDay);
-        model.addAttribute("fiberForDay", fiberForDay);
-        model.addAttribute("sugarForDay", sugarForDay);
-        model.addAttribute("proteinForDay", proteinForDay);
-        model.addAttribute("pointsForDay", pointsForDay);
-        model.addAttribute("netCalories", netCaloriesForDay);
-        model.addAttribute("netPoints", netPointsForDay);
-
-        return FOOD_TEMPLATE;
+        return foodService.findEatenOnDate(userDTO.getId(), date);
     }
+
+    @PostMapping(value = "/api/foodeaten/{id}")
+    public final void updateFoodEaten(
+            @PathVariable(name = "id") final String idString,
+            @RequestBody final Map<String, Object> payload,
+            final HttpServletRequest request,
+            final HttpServletResponse response
+    ) {
+        final UUID foodEatenId = UUID.fromString(idString);
+        final FoodEatenDTO foodEatenDTO = foodService.findFoodEatenById(foodEatenId);
+        if (foodEatenDTO == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        final UserDTO userDTO = currentAuthenticatedUser(request);
+        if (!foodEatenDTO.getUserId().equals(userDTO.getId())) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+        Food.ServingType servingType;
+        Double servingQty;
+        try {
+            servingType = Food.ServingType.fromString((String) payload.get("servingType"));
+            servingQty = Double.parseDouble((String) payload.get("servingQty"));
+            foodService.updateFoodEaten(foodEatenId, servingQty, servingType);
+        } catch (final NullPointerException | NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        foodService.updateFoodEaten(foodEatenId, servingQty, servingType);
+    }
+
+    @DeleteMapping(value = "/api/foodeaten/{id}")
+    public final void deleteFoodEaten(
+            @PathVariable(name = "id") final String idString,
+            final HttpServletRequest request,
+            final HttpServletResponse response
+    ) {
+        final UUID foodEatenId = UUID.fromString(idString);
+        final FoodEatenDTO foodEatenDTO = foodService.findFoodEatenById(foodEatenId);
+        if (foodEatenDTO == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        final UserDTO userDTO = currentAuthenticatedUser(request);
+        if (!foodEatenDTO.getUserId().equals(userDTO.getId())) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        foodService.deleteFoodEaten(foodEatenId);
+    }
+
+
+
+
+
+
+
+
+
+
+
 
     @RequestMapping(value = "/food/eaten/add")
     public final String addFoodEaten(
@@ -98,31 +120,8 @@ final class FoodController extends AbstractController {
         final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
         final UUID foodId = UUID.fromString(foodIdString);
         foodService.addFoodEaten(userDTO.getId(), foodId, date);
-        return viewMainFoodPage(dateString, request, model);
-    }
-
-    @RequestMapping(value = "/food/eaten/update")
-    public final String updateFoodEaten(
-            @Nonnull @RequestParam(value = "foodEatenId", required = true) final String foodEatenId,
-            @Nonnull @RequestParam(value = "foodEatenQty", required = true) final double foodEatenQty,
-            @Nonnull @RequestParam(value = "foodEatenServing", required = true) final String foodEatenServing,
-            @Nonnull @RequestParam(value = "action", required = true) final String action,
-            final HttpServletRequest request,
-            final Model model
-    ) {
-        final UserDTO userDTO = currentAuthenticatedUser(request);
-        final UUID foodEatenUUID = UUID.fromString(foodEatenId);
-        final FoodEatenDTO foodEatenDTO = foodService.findFoodEatenById(foodEatenUUID);
-        final String dateString = dateFormat.format(foodEatenDTO.getDate());
-        if (!userDTO.getId().equals(foodEatenDTO.getUserId())) {
-            System.out.println("\n\nThis user is unable to update this food eaten\n");
-        } else if (action.equalsIgnoreCase("update")) {
-            final Food.ServingType servingType = Food.ServingType.fromString(foodEatenServing);
-            foodService.updateFoodEaten(foodEatenUUID, foodEatenQty, servingType);
-        } else if (action.equalsIgnoreCase("delete")) {
-            foodService.deleteFoodEaten(foodEatenUUID);
-        }
-        return viewMainFoodPage(dateString, request, model);
+//        return viewMainFoodPage(dateString, request, model);
+        return "";
     }
 
     @RequestMapping(value = "/food/search/{searchString}")

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+<html>
 <head>
     <title>Food</title>
 
@@ -20,15 +20,12 @@
 
         ga('create', 'UA-28600243-4', 'auto');
         ga('send', 'pageview');
-
     </script>
 
-    <script th:inline="javascript">
-    /*<![CDATA[*/
+    <script>
+    $(function () {
 
-    // Parse (or initialize) the current-date variable, and the user ID
-    var dateString = [[ ${dateString} ]];
-    if (!dateString || dateString === "") {
+        // Initialize the current-date variable
         var date = new Date();
         var year = date.getFullYear();
         var month = date.getMonth() + 1;
@@ -40,11 +37,6 @@
             day = "0" + day;
         }
         dateString = year + "-" + month + "-" + day;
-    }
-    var userIdString = [[ ${user.id.toString()} ]];
-
-    /** On document load... */
-    $(function () {
 
         // Initialize the Datepicker widget
         $("#datepicker").datepicker({
@@ -55,12 +47,146 @@
         });
         $("#datepicker").datepicker("setDate", dateString);
         $("#datepicker").datepicker().on("changeDate", function(e) {
-            window.location.href = "/food?date=" + this.value;
+            loadFoodsEaten($('#datepicker').val());
         });
 
         // Style the "update" and "delete" icons on each food eaten table row
         $(".glyphicon-pencil").tooltip();
         $(".glyphicon-trash").tooltip();
+
+        loadFoodsEaten(dateString);
+
+        function loadFoodsEaten(dateString) {
+            var foodsEaten;
+            var exercisesPerformed;
+            $.when(
+                $.get("/api/foodeaten/" + dateString, function (payload) {
+                    foodsEaten = payload;
+                }) //,
+
+//                $.get("/api/exerciseperformed/" + dateString, function (result) {
+//                    exercisesPerformed = result;
+//                })
+            ).then(function() {
+                // success
+                function roundDouble(number) {
+                    return number % 1 == 0 ? number : number.toFixed(2);
+                }
+                function buildOption(actualValue, expectedValue) {
+                    return '<option value="' + expectedValue + '" ' + (expectedValue.toUpperCase() == actualValue ? 'selected="selected"' : '') + '>' + expectedValue + '</option>';
+                }
+                $('#foodsEaten tbody').empty();
+                $('#foodsEaten tfoot').empty();
+                var totalCalories = 0;
+                var totalFat = 0;
+                var totalSaturatedFat = 0;
+                var totalSodium = 0;
+                var totalCarbs = 0;
+                var totalFiber = 0;
+                var totalSugar = 0;
+                var totalProtein = 0;
+                var totalPoints = 0;
+                for (var index = 0; index < foodsEaten.length; index++) {
+                    totalCalories += foodsEaten[index].calories;
+                    totalFat += foodsEaten[index].fat;
+                    totalSaturatedFat += foodsEaten[index].saturatedFat;
+                    totalSodium += foodsEaten[index].sodium;
+                    totalCarbs += foodsEaten[index].carbs;
+                    totalFiber += foodsEaten[index].fiber;
+                    totalSugar += foodsEaten[index].sugar;
+                    totalProtein += foodsEaten[index].protein;
+                    totalPoints += foodsEaten[index].points;
+                    var servingTypeOptions = '';
+                    if (foodsEaten[index].servingType == 'CUSTOM') {
+                        servingTypeOptions = '<option value="CUSTOM">CUSTOM</option>';
+                    } else {
+                        servingTypeOptions += buildOption(foodsEaten[index].servingType, 'ounce');
+                        servingTypeOptions += '<option value="cup" ' + (foodsEaten[index].servingType == 'CUP' ? 'selected="selected"' : '') + '>cup</option>';
+                        servingTypeOptions += '<option value="pound" ' + (foodsEaten[index].servingType == 'POUND' ? 'selected="selected"' : '') + '>pound</option>';
+                        servingTypeOptions += '<option value="pint" ' + (foodsEaten[index].servingType == 'PINT' ? 'selected="pint"' : '') + '>pint</option>';
+                        servingTypeOptions += '<option value="tablespoon" ' + (foodsEaten[index].servingType == 'TABLESPOON' ? 'selected="tablespoon"' : '') + '>tablespoon</option>';
+                        servingTypeOptions += '<option value="teaspoon" ' + (foodsEaten[index].servingType == 'TEASPOON' ? 'selected="teaspoon"' : '') + '>teaspoon</option>';
+                        servingTypeOptions += '<option value="gram" ' + (foodsEaten[index].servingType == 'gram' ? 'selected="GRAM"' : '') + '>gram</option>';
+                    }
+                    $('#foodsEaten tbody').append('<tr id="' + foodsEaten[index].id + '">'
+                            + '<td width="30%">' + foodsEaten[index].food.name + '</td>'
+                            + '<td><input class="form-control" type="text" size="2" value="' + foodsEaten[index].servingQty + '"/></td>'
+                            + '<td><select class="form-control">' + servingTypeOptions + '</select></td>'
+                            + '<td>' + Math.round(foodsEaten[index].calories) + '</td>'
+                            + '<td>' + roundDouble(foodsEaten[index].fat) + '</td>'
+                            + '<td>' + roundDouble(foodsEaten[index].saturatedFat) + '</td>'
+                            + '<td>' + roundDouble(foodsEaten[index].sodium) + '</td>'
+                            + '<td>' + roundDouble(foodsEaten[index].carbs) + '</td>'
+                            + '<td>' + roundDouble(foodsEaten[index].fiber) + '</td>'
+                            + '<td>' + roundDouble(foodsEaten[index].sugar) + '</td>'
+                            + '<td>' + roundDouble(foodsEaten[index].protein) + '</td>'
+                            + '<td><span class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" data-original-title="Delete"/></td>'
+                            + '</tr>'
+                    );
+                    var servingQtyInput = $('#' + foodsEaten[index].id).find('input');
+                    var servingTypeInput = $('#' + foodsEaten[index].id).find('select');
+                    var deleteButton = $('#' + foodsEaten[index].id).find('span.glyphicon');
+                    servingQtyInput.on('change', servingQtyInput, updateFoodEaten);
+                    servingTypeInput.on('change', servingTypeInput, updateFoodEaten);
+                    deleteButton.on('click', deleteButton, deleteFoodEaten);
+                }
+                $('#foodsEaten tfoot').append('<tr class="strong">'
+                        + '<td width="30%"><br/>TOTAL:</td><td><br/>&nbsp;</td><td><br/>&nbsp;</td>'
+                        + '<td>' + Math.round(totalCalories) + '<br/></td>'
+                        + '<td>' + roundDouble(totalFat) + '<br/></td>'
+                        + '<td>' + roundDouble(totalSaturatedFat) + '<br/></td>'
+                        + '<td>' + roundDouble(totalSodium) + '<br/></td>'
+                        + '<td>' + roundDouble(totalCarbs) + '<br/></td>'
+                        + '<td>' + roundDouble(totalFiber) + '<br/></td>'
+                        + '<td>' + roundDouble(totalSugar) + '<br/></td>'
+                        + '<td>' + roundDouble(totalProtein) + '<br/></td>'
+                        + '<td>' + Math.round(totalCalories) + ' net cal.</td>'
+                        + "</tr>"
+                );
+            }, function () {
+                console.log('An error occurred retrieving food eaten or exercise performed data for this date');
+            });
+            
+        }
+
+        function updateFoodEaten(event) {
+            var input = event.data;
+            var id = $(input).parent().parent().attr('id');
+            var servingQty = $(input).parent().parent().find('input').val();
+            var servingType = $(input).parent().parent().find('select').val();
+            $.post({
+                url: '/api/foodeaten/' + id,
+                contentType: 'application/json',
+                data: JSON.stringify({ servingType: servingType, servingQty: servingQty })
+            }).done(function() {
+                $(input).css('border', '2px solid green');
+                setTimeout(function() {
+                    $(input).css('border', '0.666667px solid rgb(223, 215, 202');
+                }, 1000);
+            }).fail(function(jqXHR, textStatus) {
+                console.log('An error occurred updating a food eaten: ' + textStatus);
+                $(input).css('border', '2px solid red');
+            });
+        }
+
+        function deleteFoodEaten(event) {
+            var input = event.data;
+            var id = $(input).parent().parent().attr('id');
+            $.ajax({
+                method: 'DELETE',
+                url: '/api/foodeaten/' + id
+            }).done(function() {
+                $(input).parent().parent().css('border', '2px solid green');
+                setTimeout(function() {
+                    $(input).parent().parent().remove();
+                }, 500);
+            }).fail(function(jqXHR, textStatus) {
+                console.log('An error occurred deleting a food eaten: ' + textStatus);
+                $(input).parent().parent().css('border', '2px solid red');
+            });
+        }
+
+
 
         // Add event handling to the "Recent Foods" add button
         $("#recentFoodsButton").click(function () {
@@ -255,8 +381,6 @@
             $(form).submit();
         }
     }
-
-    /*]]>*/
     </script>
 </head>
 
@@ -269,7 +393,7 @@
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
                 <li><a href="/profile.html">Profile</a></li>
-                <li class="active"><a href="/food">Food</a></li>
+                <li class="active"><a href="/food.html">Food</a></li>
                 <li><a href="/exercise">Exercise</a></li>
                 <li><a href="/report">Reports</a></li>
             </ul>
@@ -321,7 +445,7 @@
             </div>
         </div>
         <!-- Data table -->
-        <table class="table table-striped table-condensed table-hover" cellspacing="0" cellpadding="2">
+        <table class="table table-striped table-condensed table-hover" id="foodsEaten" cellspacing="0" cellpadding="2">
             <thead>
                 <tr>
                     <th width="30%">Food</th>
@@ -335,123 +459,11 @@
                     <th>Fiber</th>
                     <th>Sugar</th>
                     <th>Protein</th>
-                    <th>Points</th>
-                    <th>&nbsp;</th>
                     <th>&nbsp;</th>
                 </tr>
             </thead>
-            <tr th:each="foodEaten : ${foodsEatenThisDate}">
-                <form th:id="'foodEatenForm-' + ${foodEaten.id}" action="/food/eaten/update">
-                    <input type="hidden" name="foodEatenId" th:value="${foodEaten.id}"/>
-                    <input type="hidden" th:id="'action-' + ${foodEaten.id}" name="action" value="update"/>
-                    <td width="30%" th:text="${foodEaten.food.name}"></td>
-                    <td><input class="form-control" type="text" size="2" name="foodEatenQty" th:value="${foodEaten.servingQty}"/></td>
-                    <td>
-                        <select class="form-control" name="foodEatenServing"
-                                th:if="${foodEaten.servingType.toString().equalsIgnoreCase('CUSTOM')}">
-                            <option selected="selected">CUSTOM</option>
-                        </select>
-                        <select class="form-control" name="foodEatenServing"
-                                th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('CUSTOM')}">
-                            <option th:if="${foodEaten.servingType.toString().equalsIgnoreCase('ounce')}" value="ounce"
-                                    selected="selected">ounce
-                            </option>
-                            <option th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('ounce')}" value="ounce">
-                                ounce
-                            </option>
-
-                            <option th:if="${foodEaten.servingType.toString().equalsIgnoreCase('cup')}" value="cup"
-                                    selected="selected">cup
-                            </option>
-                            <option th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('cup')}" value="cup">
-                                cup
-                            </option>
-
-                            <option th:if="${foodEaten.servingType.toString().equalsIgnoreCase('pound')}" value="pound"
-                                    selected="selected">pound
-                            </option>
-                            <option th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('pound')}" value="pound">
-                                pound
-                            </option>
-
-                            <option th:if="${foodEaten.servingType.toString().equalsIgnoreCase('pint')}" value="pint"
-                                    selected="selected">pint
-                            </option>
-                            <option th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('pint')}" value="pint">
-                                pint
-                            </option>
-
-                            <option th:if="${foodEaten.servingType.toString().equalsIgnoreCase('tablespoon')}"
-                                    value="tablespoon" selected="selected">tablespoon
-                            </option>
-                            <option th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('tablespoon')}"
-                                    value="tablespoon">tablespoon
-                            </option>
-
-                            <option th:if="${foodEaten.servingType.toString().equalsIgnoreCase('teaspoon')}"
-                                    value="teaspoon" selected="selected">teaspoon
-                            </option>
-                            <option th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('teaspoon')}"
-                                    value="teaspoon">teaspoon
-                            </option>
-
-                            <option th:if="${foodEaten.servingType.toString().equalsIgnoreCase('gram')}" value="gram"
-                                    selected="selected">gram
-                            </option>
-                            <option th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('gram')}" value="gram">
-                                gram
-                            </option>
-                        </select>
-                    </td>
-                    <td th:text="${foodEaten.calories} % 1 == 0 ? ${foodEaten.calories} : ${#numbers.formatDecimal(foodEaten.calories, 0, 2)}"></td>
-                    <td th:text="${foodEaten.fat} % 1 == 0 ? ${foodEaten.fat} : ${#numbers.formatDecimal(foodEaten.fat, 0, 2)}"></td>
-                    <td th:text="${foodEaten.saturatedFat} % 1 == 0 ? ${foodEaten.saturatedFat} : ${#numbers.formatDecimal(foodEaten.saturatedFat, 0, 2)}"></td>
-                    <td th:text="${foodEaten.sodium} % 1 == 0 ? ${foodEaten.sodium} : ${#numbers.formatDecimal(foodEaten.sodium, 0, 2)}"></td>
-                    <td th:text="${foodEaten.carbs} % 1 == 0 ? ${foodEaten.carbs} : ${#numbers.formatDecimal(foodEaten.carbs, 0, 2)}"></td>
-                    <td th:text="${foodEaten.fiber} % 1 == 0 ? ${foodEaten.fiber} : ${#numbers.formatDecimal(foodEaten.fiber, 0, 2)}"></td>
-                    <td th:text="${foodEaten.sugar} % 1 == 0 ? ${foodEaten.sugar} : ${#numbers.formatDecimal(foodEaten.sugar, 0, 2)}"></td>
-                    <td th:text="${foodEaten.protein} % 1 == 0 ? ${foodEaten.protein} : ${#numbers.formatDecimal(foodEaten.protein, 0, 2)}"></td>
-                    <td th:text="${foodEaten.points} % 1 == 0 ? ${foodEaten.points} : ${#numbers.formatDecimal(foodEaten.points, 0, 2)}"></td>
-                    <td>
-                        <a href="#" th:onclick="'updateFoodEaten(\'' + ${foodEaten.id} + '\');'">
-                            <span class="glyphicon glyphicon-pencil" data-toggle="tooltip" data-placement="top" data-original-title="Update"/>
-                        </a>
-                    </td>
-                    <td>
-                        <a href="#" th:onclick="'deleteFoodEaten(\'' + ${foodEaten.id} + '\');'">
-                            <span class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" data-original-title="Delete"/>
-                        </a>
-                    </td>
-                </form>
-            </tr>
-            <tfoot>
-                <tr class="strong">
-                    <td width="30%"><br/>TOTAL:</td>
-                    <td><br/>&nbsp;</td>
-                    <td><br/>&nbsp;</td>
-                    <td th:text="${caloriesForDay} % 1 == 0 ? ${caloriesForDay} : ${#numbers.formatDecimal(caloriesForDay, 0, 2)}">
-                        <br/></td>
-                    <td th:text="${fatForDay} % 1 == 0 ? ${fatForDay} : ${#numbers.formatDecimal(fatForDay, 0, 2)}"><br/></td>
-                    <td th:text="${saturatedFatForDay} % 1 == 0 ? ${saturatedFatForDay} : ${#numbers.formatDecimal(saturatedFatForDay, 0, 2)}">
-                        <br/></td>
-                    <td th:text="${sodiumForDay} % 1 == 0 ? ${sodiumForDay} : ${#numbers.formatDecimal(sodiumForDay, 0, 2)}">
-                        <br/></td>
-                    <td th:text="${carbsForDay} % 1 == 0 ? ${carbsForDay} : ${#numbers.formatDecimal(carbsForDay, 0, 2)}"><br/>
-                    </td>
-                    <td th:text="${fiberForDay} % 1 == 0 ? ${fiberForDay} : ${#numbers.formatDecimal(fiberForDay, 0, 2)}"><br/>
-                    </td>
-                    <td th:text="${sugarForDay} % 1 == 0 ? ${sugarForDay} : ${#numbers.formatDecimal(sugarForDay, 0, 2)}"><br/>
-                    </td>
-                    <td th:text="${proteinForDay} % 1 == 0 ? ${proteinForDay} : ${#numbers.formatDecimal(proteinForDay, 0, 2)}">
-                        <br/></td>
-                    <td th:text="${pointsForDay} % 1 == 0 ? ${pointsForDay} : ${#numbers.formatDecimal(pointsForDay, 0, 2)}">
-                        <br/></td>
-                    <td colspan="2">
-                        <span th:text="${netCalories}"/> net cal.<br/>
-                        <span th:text="${netPoints} % 1 == 0 ? ${netPoints} : ${#numbers.formatDecimal(netPoints, 0, 2)}"/> net points
-                    </td>
-                </tr>
-            </tfoot>
+            <tbody></tbody>
+            <tfoot></tfoot>
         </table>
     </div>
 </div>

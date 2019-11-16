@@ -38,21 +38,18 @@
         }
 
         function setupWeight() {
-            // Parse (or initialize) the current-date variable
-            var dateString = getRequestParam("date")
-            if (!dateString) {
-                var date = new Date();
-                var year = date.getFullYear();
-                var month = date.getMonth() + 1;
-                if (month < 10) {
-                    month = "0" + month;
-                }
-                var day = date.getDate();
-                if (day < 10) {
-                    day = "0" + day;
-                }
-                dateString = year + "-" + month + "-" + day;
+            // Initialize the current-date variable
+            var date = new Date();
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1;
+            if (month < 10) {
+                month = "0" + month;
             }
+            var day = date.getDate();
+            if (day < 10) {
+                day = "0" + day;
+            }
+            dateString = year + "-" + month + "-" + day;
 
             // Initialize the datepicker widgets
             $("#datepicker-weight").datepicker({
@@ -213,7 +210,7 @@
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
                 <li class="active"><a href="/profile.html">Profile</a></li>
-                <li><a href="/food">Food</a></li>
+                <li><a href="/food.html">Food</a></li>
                 <li><a href="/exercise">Exercise</a></li>
                 <li><a href="/report">Reports</a></li>
             </ul>
