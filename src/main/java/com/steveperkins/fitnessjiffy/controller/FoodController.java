@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
+@RequestMapping("/api")
 final class FoodController extends AbstractController {
 
     private final FoodService foodService;
@@ -35,7 +36,7 @@ final class FoodController extends AbstractController {
         this.exerciseService = exerciseService;
     }
 
-    @GetMapping(value = "/api/foodeaten/{date}")
+    @GetMapping("/foodeaten/{date}")
     public final List<FoodEatenDTO> loadFoodsEaten(
             @PathVariable(name = "date") final String dateString,
             final HttpServletRequest request
@@ -45,7 +46,7 @@ final class FoodController extends AbstractController {
         return foodService.findEatenOnDate(userDTO.getId(), date);
     }
 
-    @PostMapping(value = "/api/foodeaten/{id}")
+    @PostMapping("/foodeaten/{id}")
     public final void updateFoodEaten(
             @PathVariable(name = "id") final String idString,
             @RequestBody final Map<String, Object> payload,
@@ -77,7 +78,7 @@ final class FoodController extends AbstractController {
         foodService.updateFoodEaten(foodEatenId, servingQty, servingType);
     }
 
-    @DeleteMapping(value = "/api/foodeaten/{id}")
+    @DeleteMapping("/foodeaten/{id}")
     public final void deleteFoodEaten(
             @PathVariable(name = "id") final String idString,
             final HttpServletRequest request,
