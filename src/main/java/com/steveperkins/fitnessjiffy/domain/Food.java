@@ -1,7 +1,5 @@
 package com.steveperkins.fitnessjiffy.domain;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -28,11 +26,11 @@ public final class Food {
 
         private double value;
 
-        private ServingType(final double value) {
+        ServingType(final double value) {
             this.value = value;
         }
 
-        @Nullable
+
         public static ServingType fromValue(final double value) {
             ServingType match = null;
             for (final ServingType servingType : ServingType.values()) {
@@ -43,8 +41,8 @@ public final class Food {
             return match;
         }
 
-        @Nullable
-        public static ServingType fromString(@Nonnull final String s) {
+
+        public static ServingType fromString(final String s) {
             ServingType match = null;
             for (final ServingType servingType : ServingType.values()) {
                 if (servingType.toString().equalsIgnoreCase(s)) {
@@ -109,10 +107,10 @@ public final class Food {
     private Timestamp lastUpdatedTime = new Timestamp(new java.util.Date().getTime());
 
     public Food(
-            @Nullable final UUID id,
-            @Nullable final User owner,
-            @Nonnull final String name,
-            @Nonnull final ServingType defaultServingType,
+            final UUID id,
+            final User owner,
+            final String name,
+            final ServingType defaultServingType,
             final double servingTypeQty,
             final int calories,
             final double fat,
@@ -122,8 +120,8 @@ public final class Food {
             final double sugar,
             final double protein,
             final double sodium,
-            @Nonnull final Timestamp createdTime,
-            @Nonnull final Timestamp lastUpdatedTime
+            final Timestamp createdTime,
+            final Timestamp lastUpdatedTime
     ) {
         this.id = Optional.ofNullable(id).orElse(UUID.randomUUID());
         this.owner = owner;
@@ -145,138 +143,138 @@ public final class Food {
     public Food() {
     }
 
-    @Nonnull
+
     public UUID getId() {
         return id;
     }
 
-    public void setId(@Nonnull final UUID id) {
+    public void setId(final UUID id) {
         this.id = id;
     }
 
-    @Nullable
+
     public User getOwner() {
         return owner;
     }
 
-    public void setOwner(@Nullable final User owner) {
+    public void setOwner(final User owner) {
         this.owner = owner;
     }
 
-    @Nonnull
+
     public String getName() {
         return name;
     }
 
-    public void setName(@Nonnull final String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
-    @Nonnull
+
     public ServingType getDefaultServingType() {
         return defaultServingType;
     }
 
-    public void setDefaultServingType(@Nonnull final ServingType defaultServingType) {
+    public void setDefaultServingType(final ServingType defaultServingType) {
         this.defaultServingType = defaultServingType;
     }
 
-    @Nonnull
+
     public Double getServingTypeQty() {
         return servingTypeQty;
     }
 
-    public void setServingTypeQty(@Nonnull final Double servingTypeQty) {
+    public void setServingTypeQty(final Double servingTypeQty) {
         this.servingTypeQty = servingTypeQty;
     }
 
-    @Nonnull
+
     public Integer getCalories() {
         return calories;
     }
 
-    public void setCalories(@Nonnull final Integer calories) {
+    public void setCalories(final Integer calories) {
         this.calories = calories;
     }
 
-    @Nonnull
+
     public Double getFat() {
         return fat;
     }
 
-    public void setFat(@Nonnull final Double fat) {
+    public void setFat(final Double fat) {
         this.fat = fat;
     }
 
-    @Nonnull
+
     public Double getSaturatedFat() {
         return saturatedFat;
     }
 
-    public void setSaturatedFat(@Nonnull final Double saturatedFat) {
+    public void setSaturatedFat(final Double saturatedFat) {
         this.saturatedFat = saturatedFat;
     }
 
-    @Nonnull
+
     public Double getCarbs() {
         return carbs;
     }
 
-    public void setCarbs(@Nonnull final Double carbs) {
+    public void setCarbs(final Double carbs) {
         this.carbs = carbs;
     }
 
-    @Nonnull
+
     public Double getFiber() {
         return fiber;
     }
 
-    public void setFiber(@Nonnull final Double fiber) {
+    public void setFiber(final Double fiber) {
         this.fiber = fiber;
     }
 
-    @Nonnull
+
     public Double getSugar() {
         return sugar;
     }
 
-    public void setSugar(@Nonnull final Double sugar) {
+    public void setSugar(final Double sugar) {
         this.sugar = sugar;
     }
 
-    @Nonnull
+
     public Double getProtein() {
         return protein;
     }
 
-    public void setProtein(@Nonnull final Double protein) {
+    public void setProtein(final Double protein) {
         this.protein = protein;
     }
 
-    @Nonnull
+
     public Double getSodium() {
         return sodium;
     }
 
-    public void setSodium(@Nonnull final Double sodium) {
+    public void setSodium(final Double sodium) {
         this.sodium = sodium;
     }
 
-    @Nonnull
+
     public Timestamp getCreatedTime() {
         return (Timestamp) createdTime.clone();
     }
 
-    public void setCreatedTime(@Nonnull final Timestamp createdTime) {
+    public void setCreatedTime(final Timestamp createdTime) {
         this.createdTime = (Timestamp) createdTime.clone();
     }
 
-    @Nonnull
+
     public Timestamp getLastUpdatedTime() {
         return (Timestamp) lastUpdatedTime.clone();
     }
 
-    public void setLastUpdatedTime(@Nonnull final Timestamp lastUpdatedTime) {
+    public void setLastUpdatedTime(final Timestamp lastUpdatedTime) {
         this.lastUpdatedTime = (Timestamp) lastUpdatedTime.clone();
     }
 

@@ -1,7 +1,7 @@
 package com.steveperkins.fitnessjiffy.dto;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.UUID;
@@ -9,7 +9,7 @@ import java.util.UUID;
 public final class ExercisePerformedDTO implements Serializable {
 
     private UUID id;
-    private UUID userId;
+    @JsonIgnore private UUID userId;
     private ExerciseDTO exercise;
     private Date date;
     private int minutes;
@@ -17,10 +17,10 @@ public final class ExercisePerformedDTO implements Serializable {
     private double pointsBurned;
 
     public ExercisePerformedDTO(
-            @Nullable final UUID id,
-            @Nonnull final UUID userId,
-            @Nonnull final ExerciseDTO exercise,
-            @Nonnull final Date date,
+            final UUID id,
+            final UUID userId,
+            final ExerciseDTO exercise,
+            final Date date,
             final int minutes
     ) {
         this.id = id;
@@ -33,39 +33,39 @@ public final class ExercisePerformedDTO implements Serializable {
     public ExercisePerformedDTO() {
     }
 
-    @Nullable
+
     public UUID getId() {
         return id;
     }
 
-    public void setId(@Nonnull final UUID id) {
+    public void setId(final UUID id) {
         this.id = id;
     }
 
-    @Nonnull
+
     public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(@Nonnull final UUID userId) {
+    public void setUserId(final UUID userId) {
         this.userId = userId;
     }
 
-    @Nonnull
+
     public ExerciseDTO getExercise() {
         return exercise;
     }
 
-    public void setExercise(@Nonnull final ExerciseDTO exercise) {
+    public void setExercise(final ExerciseDTO exercise) {
         this.exercise = exercise;
     }
 
-    @Nonnull
+
     public Date getDate() {
         return (Date) date.clone();
     }
 
-    public void setDate(@Nonnull final Date date) {
+    public void setDate(final Date date) {
         this.date = (Date) date.clone();
     }
 

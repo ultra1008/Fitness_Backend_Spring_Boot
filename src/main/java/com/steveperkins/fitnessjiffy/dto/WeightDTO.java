@@ -1,6 +1,5 @@
 package com.steveperkins.fitnessjiffy.dto;
 
-import javax.annotation.Nonnull;
 import java.sql.Date;
 import java.util.UUID;
 
@@ -12,9 +11,9 @@ public final class WeightDTO {
     private double pounds;
 
     public WeightDTO(
-            @Nonnull final UUID id,
-            @Nonnull final UUID userId,
-            @Nonnull final Date date,
+            final UUID id,
+            final UUID userId,
+            final Date date,
             final double pounds
     ) {
         this.id = id;

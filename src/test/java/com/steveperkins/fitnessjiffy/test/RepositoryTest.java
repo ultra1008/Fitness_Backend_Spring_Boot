@@ -9,9 +9,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertNull;
 
 import com.steveperkins.fitnessjiffy.domain.Exercise;
 import com.steveperkins.fitnessjiffy.domain.ExercisePerformed;

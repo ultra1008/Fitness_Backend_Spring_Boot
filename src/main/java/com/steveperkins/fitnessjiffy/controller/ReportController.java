@@ -8,7 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -18,7 +17,7 @@ final class ReportController extends AbstractController {
     private final ReportDataService reportDataService;
 
     @Autowired
-    public ReportController(@Nonnull final ReportDataService reportDataService) {
+    public ReportController(final ReportDataService reportDataService) {
         this.reportDataService = reportDataService;
     }
 
@@ -29,7 +28,7 @@ final class ReportController extends AbstractController {
 
     @GetMapping(value = "/report/get")
     @ResponseBody
-    public final List<ReportDataDTO> getReportData(@Nonnull final HttpServletRequest request) {
+    public final List<ReportDataDTO> getReportData(final HttpServletRequest request) {
         final UserDTO userDTO = currentAuthenticatedUser(request);
         return reportDataService.findByUser(userDTO.getId());
     }

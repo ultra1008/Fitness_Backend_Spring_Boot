@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -70,7 +69,7 @@ final class ProfileController extends AbstractController {
 
     @GetMapping(value = "/api/user/weight/{date}")
     public final Double loadWeight(
-            @Nullable @PathVariable(name = "date", required = false) final String dateString,
+            @PathVariable(name = "date", required = false) final String dateString,
             final HttpServletRequest request
     ) {
         final UserDTO userDTO = currentAuthenticatedUser(request);
@@ -83,8 +82,8 @@ final class ProfileController extends AbstractController {
 
     @PostMapping(value = "/api/user/weight/{date}", consumes = "application/json")
     public final void saveWeight(
-            @Nullable @PathVariable(name = "date", required = false) final String dateString,
-            @Nullable @RequestBody final Map<String, Object> payload,
+            @PathVariable(name = "date", required = false) final String dateString,
+            @RequestBody final Map<String, Object> payload,
             final HttpServletRequest request,
             final HttpServletResponse response
     ) throws IOException {

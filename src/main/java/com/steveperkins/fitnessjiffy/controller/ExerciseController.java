@@ -9,8 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Date;
 import java.util.List;
@@ -33,13 +31,30 @@ final class ExerciseController extends AbstractController {
     };
 
     @Autowired
-    public ExerciseController(@Nonnull final ExerciseService exerciseService) {
+    public ExerciseController(final ExerciseService exerciseService) {
         this.exerciseService = exerciseService;
     }
 
+    @GetMapping("/api/exerciseperformed/{date}")
+    @ResponseBody
+    public final List<ExercisePerformedDTO> loadExercisesPerformed(
+            @PathVariable(name = "date") final String dateString,
+            final HttpServletRequest request
+    ) {
+        final UserDTO userDTO = currentAuthenticatedUser(request);
+        final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
+        return exerciseService.findPerformedOnDate(userDTO.getId(), date);
+    }
+
+
+
+
+
+
+
     @GetMapping(value = "/exercise")
     public final String viewMainExercisePage(
-            @Nullable @RequestParam(value = "date", required = false) final String dateString,
+            @RequestParam(value = "date", required = false) final String dateString,
             final HttpServletRequest request,
             final Model model
     ) {
@@ -78,8 +93,8 @@ final class ExerciseController extends AbstractController {
 
     @RequestMapping(value = "/exercise/performed/add")
     public final String addExercisePerformed(
-            @Nonnull @RequestParam(value = "exerciseId", required = true) final String exerciseIdString,
-            @Nullable @RequestParam(value = "date", required = false) final String dateString,
+            @RequestParam(value = "exerciseId", required = true) final String exerciseIdString,
+            @RequestParam(value = "date", required = false) final String dateString,
             final HttpServletRequest request,
             final Model model
     ) {
@@ -92,9 +107,9 @@ final class ExerciseController extends AbstractController {
 
     @RequestMapping(value = "/exercise/performed/update")
     public final String updateExercisePerformed(
-            @Nonnull @RequestParam(value = "exercisePerformedId", required = true) final String exercisePerformedId,
+            @RequestParam(value = "exercisePerformedId", required = true) final String exercisePerformedId,
             @RequestParam(value = "minutes", required = true, defaultValue = "1") final int minutes,
-            @Nonnull @RequestParam(value = "action", required = true) final String action,
+            @RequestParam(value = "action", required = true) final String action,
             final HttpServletRequest request,
             final Model model
     ) {
@@ -114,13 +129,13 @@ final class ExerciseController extends AbstractController {
 
     @RequestMapping(value = "/exercise/bycategory/{category}")
     @ResponseBody
-    public final List<ExerciseDTO> findExercisesInCategory(@Nonnull @PathVariable final String category) {
+    public final List<ExerciseDTO> findExercisesInCategory(@PathVariable final String category) {
         return exerciseService.findExercisesInCategory(category);
     }
 
     @RequestMapping(value = "/exercise/search/{searchString}")
     @ResponseBody
-    public final List<ExerciseDTO> searchExercises(@Nonnull @PathVariable final String searchString) {
+    public final List<ExerciseDTO> searchExercises(@PathVariable final String searchString) {
         return exerciseService.searchExercises(searchString);
     }
 

@@ -5,14 +5,12 @@ import com.steveperkins.fitnessjiffy.dto.ReportDataDTO;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
-
 @Component
 public class ReportDataToReportDataDTO implements Converter<ReportData, ReportDataDTO> {
 
     @Override
-    @Nullable
-    public ReportDataDTO convert(@Nullable final ReportData reportData) {
+
+    public ReportDataDTO convert(final ReportData reportData) {
         ReportDataDTO dto = null;
         if (reportData != null) {
             dto = new ReportDataDTO();

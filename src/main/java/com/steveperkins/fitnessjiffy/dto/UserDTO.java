@@ -3,8 +3,6 @@ package com.steveperkins.fitnessjiffy.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.steveperkins.fitnessjiffy.domain.User;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.UUID;
@@ -26,15 +24,15 @@ public final class UserDTO implements Serializable {
     private double dailyPoints;
 
     public UserDTO(
-            @Nullable final UUID id,
-            @Nonnull final User.Gender gender,
-            @Nonnull final Date birthdate,
+            final UUID id,
+            final User.Gender gender,
+            final Date birthdate,
             final double heightInInches,
-            @Nonnull final User.ActivityLevel activityLevel,
-            @Nonnull final String email,
-            @Nonnull final String firstName,
-            @Nonnull final String lastName,
-            @Nonnull final String timeZone,
+            final User.ActivityLevel activityLevel,
+            final String email,
+            final String firstName,
+            final String lastName,
+            final String timeZone,
             final double currentWeight,
             final double bmi,
             final int maintenanceCalories,
@@ -58,30 +56,30 @@ public final class UserDTO implements Serializable {
     public UserDTO() {
     }
 
-    @Nullable
+
     public UUID getId() {
         return id;
     }
 
-    public void setId(@Nonnull final UUID id) {
+    public void setId(final UUID id) {
         this.id = id;
     }
 
-    @Nonnull
+
     public User.Gender getGender() {
         return gender;
     }
 
-    public void setGender(@Nonnull final User.Gender gender) {
+    public void setGender(final User.Gender gender) {
         this.gender = gender;
     }
 
-    @Nonnull
+
     public Date getBirthdate() {
         return (Date) birthdate.clone();
     }
 
-    public void setBirthdate(@Nonnull final Date birthdate) {
+    public void setBirthdate(final Date birthdate) {
         this.birthdate = (Date) birthdate.clone();
     }
 
@@ -93,48 +91,48 @@ public final class UserDTO implements Serializable {
         this.heightInInches = heightInInches;
     }
 
-    @Nonnull
+
     public User.ActivityLevel getActivityLevel() {
         return activityLevel;
     }
 
-    public void setActivityLevel(@Nonnull final User.ActivityLevel activityLevel) {
+    public void setActivityLevel(final User.ActivityLevel activityLevel) {
         this.activityLevel = activityLevel;
     }
 
-    @Nonnull
+
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(@Nonnull final String email) {
+    public void setEmail(final String email) {
         this.email = email;
     }
 
-    @Nonnull
+
     public String getFirstName() {
         return firstName;
     }
 
-    public void setFirstName(@Nonnull final String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
-    @Nonnull
+
     public String getLastName() {
         return lastName;
     }
 
-    public void setLastName(@Nonnull final String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
-    @Nonnull
+
     public String getTimeZone() {
         return timeZone;
     }
 
-    public void setTimeZone(@Nonnull final String timeZone) {
+    public void setTimeZone(final String timeZone) {
         this.timeZone = timeZone;
     }
 

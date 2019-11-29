@@ -1,6 +1,5 @@
 package com.steveperkins.fitnessjiffy.controller;
 
-import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -9,7 +8,6 @@ import com.steveperkins.fitnessjiffy.domain.Food;
 import com.steveperkins.fitnessjiffy.dto.FoodDTO;
 import com.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
 import com.steveperkins.fitnessjiffy.dto.UserDTO;
-import com.steveperkins.fitnessjiffy.service.ExerciseService;
 import com.steveperkins.fitnessjiffy.service.FoodService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -21,21 +19,17 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
+@RequestMapping("/api")
 final class FoodController extends AbstractController {
 
     private final FoodService foodService;
-    private final ExerciseService exerciseService;
 
     @Autowired
-    public FoodController(
-            @Nonnull final FoodService foodService,
-            @Nonnull final ExerciseService exerciseService
-    ) {
+    public FoodController(final FoodService foodService) {
         this.foodService = foodService;
-        this.exerciseService = exerciseService;
     }
 
-    @GetMapping(value = "/api/foodeaten/{date}")
+    @GetMapping("/foodeaten/{date}")
     public final List<FoodEatenDTO> loadFoodsEaten(
             @PathVariable(name = "date") final String dateString,
             final HttpServletRequest request
@@ -45,23 +39,36 @@ final class FoodController extends AbstractController {
         return foodService.findEatenOnDate(userDTO.getId(), date);
     }
 
-    @PostMapping(value = "/api/foodeaten/{id}")
-    public final void updateFoodEaten(
-            @PathVariable(name = "id") final String idString,
+    @PostMapping("/foodeaten")
+    public final FoodEatenDTO addFoodEaten(
+            @RequestBody final Map<String, Object> payload,
+            final HttpServletRequest request
+    ) {
+        final UserDTO userDTO = currentAuthenticatedUser(request);
+        final String foodIdString = (String) payload.get("id");
+        final String dateString = (String) payload.get("date");
+        final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
+        final UUID foodId = UUID.fromString(foodIdString);
+        return foodService.addFoodEaten(userDTO.getId(), foodId, date);
+    }
+
+    @PutMapping("/foodeaten/{id}")
+    public final FoodEatenDTO updateFoodEaten(
+            @PathVariable(name = "id") final String foodEatenIdString,
             @RequestBody final Map<String, Object> payload,
             final HttpServletRequest request,
             final HttpServletResponse response
     ) {
-        final UUID foodEatenId = UUID.fromString(idString);
+        final UUID foodEatenId = UUID.fromString(foodEatenIdString);
         final FoodEatenDTO foodEatenDTO = foodService.findFoodEatenById(foodEatenId);
         if (foodEatenDTO == null) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
+            return null;
         }
         final UserDTO userDTO = currentAuthenticatedUser(request);
         if (!foodEatenDTO.getUserId().equals(userDTO.getId())) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
+            return null;
         }
         Food.ServingType servingType;
         Double servingQty;
@@ -71,13 +78,13 @@ final class FoodController extends AbstractController {
             foodService.updateFoodEaten(foodEatenId, servingQty, servingType);
         } catch (final NullPointerException | NumberFormatException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
+            return null;
         }
 
-        foodService.updateFoodEaten(foodEatenId, servingQty, servingType);
+        return foodService.updateFoodEaten(foodEatenId, servingQty, servingType);
     }
 
-    @DeleteMapping(value = "/api/foodeaten/{id}")
+    @DeleteMapping("/foodeaten/{id}")
     public final void deleteFoodEaten(
             @PathVariable(name = "id") final String idString,
             final HttpServletRequest request,
@@ -98,36 +105,29 @@ final class FoodController extends AbstractController {
         foodService.deleteFoodEaten(foodEatenId);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-    @RequestMapping(value = "/food/eaten/add")
-    public final String addFoodEaten(
-            @Nonnull @RequestParam(value = "foodId", required = true) final String foodIdString,
-            @Nonnull @RequestParam(value = "date", required = false) final String dateString,
-            final HttpServletRequest request,
-            final Model model
+    @GetMapping("/food/recent/{date}")
+    public final List<FoodDTO> loadRecentFoods(
+            @PathVariable(name = "date") final String dateString,
+            final HttpServletRequest request
     ) {
         final UserDTO userDTO = currentAuthenticatedUser(request);
         final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
-        final UUID foodId = UUID.fromString(foodIdString);
-        foodService.addFoodEaten(userDTO.getId(), foodId, date);
-//        return viewMainFoodPage(dateString, request, model);
-        return "";
+        return foodService.findEatenRecently(userDTO.getId(), date);
     }
+
+
+
+
+
+
+
+
+
 
     @RequestMapping(value = "/food/search/{searchString}")
     @ResponseBody
     public final List<FoodDTO> searchFoods(
-            @Nonnull @PathVariable final String searchString,
+            @PathVariable final String searchString,
             final HttpServletRequest request
     ) {
         final UserDTO userDTO = currentAuthenticatedUser(request);
@@ -137,7 +137,7 @@ final class FoodController extends AbstractController {
     @RequestMapping(value = "/food/get/{foodId}")
     @ResponseBody
     public final FoodDTO getFood(
-            @Nonnull @PathVariable final String foodId,
+            @PathVariable final String foodId,
             final HttpServletRequest request
     ) {
         final UserDTO userDTO = currentAuthenticatedUser(request);
@@ -152,7 +152,7 @@ final class FoodController extends AbstractController {
     @RequestMapping(value = "/food/update")
     @ResponseBody
     public final String createOrUpdateFood(
-            @Nonnull @ModelAttribute final FoodDTO foodDTO,
+            @ModelAttribute final FoodDTO foodDTO,
             final HttpServletRequest request,
             final Model model
     ) {

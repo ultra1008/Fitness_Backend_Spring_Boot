@@ -1,7 +1,5 @@
 package com.steveperkins.fitnessjiffy.domain;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -30,11 +28,11 @@ public final class Exercise {
     private String description;
 
     public Exercise(
-            @Nullable final UUID id,
-            @Nonnull final String code,
+            final UUID id,
+            final String code,
             final double metabolicEquivalent,
-            @Nonnull final String category,
-            @Nonnull final String description
+            final String category,
+            final String description
     ) {
         this.id = Optional.ofNullable(id).orElse(UUID.randomUUID());
         this.code = code;
@@ -46,48 +44,48 @@ public final class Exercise {
     public Exercise() {
     }
 
-    @Nonnull
+
     public UUID getId() {
         return id;
     }
 
-    public void setId(@Nonnull final UUID id) {
+    public void setId(final UUID id) {
         this.id = id;
     }
 
-    @Nonnull
+
     public String getCode() {
         return code;
     }
 
-    public void setCode(@Nonnull final String code) {
+    public void setCode(final String code) {
         this.code = code;
     }
 
-    @Nonnull
+
     public Double getMetabolicEquivalent() {
         return metabolicEquivalent;
     }
 
-    public void setMetabolicEquivalent(@Nonnull final Double metabolicEquivalent) {
+    public void setMetabolicEquivalent(final Double metabolicEquivalent) {
         this.metabolicEquivalent = metabolicEquivalent;
     }
 
-    @Nonnull
+
     public String getCategory() {
         return category;
     }
 
-    public void setCategory(@Nonnull final String category) {
+    public void setCategory(final String category) {
         this.category = category;
     }
 
-    @Nonnull
+
     public String getDescription() {
         return description.trim();
     }
 
-    public void setDescription(@Nonnull final String description) {
+    public void setDescription(final String description) {
         this.description = (description == null) ? "" : description.trim();
     }
 

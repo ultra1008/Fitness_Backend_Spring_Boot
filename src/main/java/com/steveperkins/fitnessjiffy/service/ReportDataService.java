@@ -16,8 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -70,12 +68,12 @@ public final class ReportDataService {
      */
     @Autowired
     public ReportDataService(
-            @Nonnull final UserRepository userRepository,
-            @Nonnull final WeightRepository weightRepository,
-            @Nonnull final FoodEatenRepository foodEatenRepository,
-            @Nonnull final ExercisePerformedRepository exercisePerformedRepository,
-            @Nonnull final ReportDataRepository reportDataRepository,
-            @Nonnull final ReportDataToReportDataDTO reportDataDTOConverter
+            final UserRepository userRepository,
+            final WeightRepository weightRepository,
+            final FoodEatenRepository foodEatenRepository,
+            final ExercisePerformedRepository exercisePerformedRepository,
+            final ReportDataRepository reportDataRepository,
+            final ReportDataToReportDataDTO reportDataDTOConverter
     ) {
         this.userRepository = userRepository;
         this.weightRepository = weightRepository;
@@ -84,30 +82,27 @@ public final class ReportDataService {
         this.reportDataRepository = reportDataRepository;
         this.reportDataDTOConverter = reportDataDTOConverter;
 
-        final Runnable backgroundCleanupThread = new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    for (Map.Entry<UUID, ReportDataUpdateEntry> entry : scheduledUserUpdates.entrySet()) {
-                        final Future future = entry.getValue().getFuture();
-                        if (future == null || future.isDone() || future.isCancelled()) {
-                            scheduledUserUpdates.remove(entry.getKey());
-                        }
+        final Runnable backgroundCleanupThread = () -> {
+            while (true) {
+                for (Map.Entry<UUID, ReportDataUpdateEntry> entry : scheduledUserUpdates.entrySet()) {
+                    final Future future = entry.getValue().getFuture();
+                    if (future == null || future.isDone() || future.isCancelled()) {
+                        scheduledUserUpdates.remove(entry.getKey());
                     }
-                    try {
-                        Thread.sleep(cleanupFrequencyInMillis);
-                    } catch (InterruptedException e) {
-                        System.out.println("Exception thrown while sleeping in between runs of the ReportData cleanup thread");
-                        e.printStackTrace();
-                    }
+                }
+                try {
+                    Thread.sleep(cleanupFrequencyInMillis);
+                } catch (InterruptedException e) {
+                    System.out.println("Exception thrown while sleeping in between runs of the ReportData cleanup thread");
+                    e.printStackTrace();
                 }
             }
         };
         new Thread(backgroundCleanupThread).start();
     }
 
-    @Nonnull
-    public List<ReportDataDTO> findByUser(@Nonnull final UUID userId) {
+
+    public List<ReportDataDTO> findByUser(final UUID userId) {
         final User user = userRepository.findOne(userId);
         final List<ReportData> reportData = reportDataRepository.findByUserOrderByDateAsc(user);
         return reportData.stream()
@@ -134,10 +129,10 @@ public final class ReportDataService {
      * problem until I'm able to focus on it again at some point.  At least this method is called only by other classes
      * in the service tier, and not from anywhere in the controller tier that should never touch raw entities.
      */
-    @Nullable
+
     public synchronized final Future updateUserFromDate(
-            @Nonnull final User user,
-            @Nonnull final Date date
+            final User user,
+            final Date date
     ) {
         // The date is adjusted by the current time in the user's specific time zone.  For example, 2015-03-01 1:00 am
         // on a GMT clock is actually 2015-02-28 8:00 pm if the user is in the "America/New_York" time zone.  So we
@@ -187,7 +182,7 @@ public final class ReportDataService {
      * New York).  This method does not modify historic dates earlier than today, because the current time of day today
      * shouldn't cause historic dates to change.
      */
-    @Nonnull
+
     public final Date adjustDateForTimeZone(final Date date, final ZoneId timeZone) {
         final LocalDateTime localDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getTime()), ZoneId.systemDefault());
         final LocalDateTime today = LocalDateTime.now();
@@ -208,17 +203,17 @@ public final class ReportDataService {
         private final Date startDate;
         private final Future future;
 
-        public ReportDataUpdateEntry(@Nonnull final Date startDate, @Nonnull final Future future) {
+        public ReportDataUpdateEntry(final Date startDate, final Future future) {
             this.startDate = startDate;
             this.future = future;
         }
 
-        @Nonnull
+
         public final Date getStartDate() {
             return startDate;
         }
 
-        @Nonnull
+
         public final Future getFuture() {
             return future;
         }
@@ -249,8 +244,8 @@ public final class ReportDataService {
         private final Date startDate;
 
         public ReportDataUpdateTask(
-                @Nonnull final User user,
-                @Nonnull final Date startDate
+                final User user,
+                final Date startDate
         ) {
             this.user = user;
             this.startDate = startDate;

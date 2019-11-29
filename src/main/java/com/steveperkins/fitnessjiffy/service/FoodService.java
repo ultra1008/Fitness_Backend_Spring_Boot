@@ -14,8 +14,6 @@ import com.steveperkins.fitnessjiffy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.sql.Date;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -36,12 +34,12 @@ public final class FoodService {
 
     @Autowired
     public FoodService(
-            @Nonnull final ReportDataService reportDataService,
-            @Nonnull final UserRepository userRepository,
-            @Nonnull final FoodRepository foodRepository,
-            @Nonnull final FoodEatenRepository foodEatenRepository,
-            @Nonnull final FoodToFoodDTO foodDTOConverter,
-            @Nonnull final FoodEatenToFoodEatenDTO foodEatenDTOConverter
+            final ReportDataService reportDataService,
+            final UserRepository userRepository,
+            final FoodRepository foodRepository,
+            final FoodEatenRepository foodEatenRepository,
+            final FoodToFoodDTO foodDTOConverter,
+            final FoodEatenToFoodEatenDTO foodEatenDTOConverter
     ) {
         this.reportDataService = reportDataService;
         this.userRepository = userRepository;
@@ -51,10 +49,9 @@ public final class FoodService {
         this.foodEatenDTOConverter = foodEatenDTOConverter;
     }
 
-    @Nonnull
     public final List<FoodEatenDTO> findEatenOnDate(
-            @Nonnull final UUID userId,
-            @Nonnull final Date date
+            final UUID userId,
+            final Date date
     ) {
         final User user = userRepository.findOne(userId);
         return foodEatenRepository.findByUserEqualsAndDateEquals(user, date)
@@ -63,10 +60,9 @@ public final class FoodService {
                 .collect(toList());
     }
 
-    @Nonnull
     public final List<FoodDTO> findEatenRecently(
-            @Nonnull final UUID userId,
-            @Nonnull final Date currentDate
+            final UUID userId,
+            final Date currentDate
     ) {
         final User user = userRepository.findOne(userId);
         final Calendar calendar = new GregorianCalendar();
@@ -79,16 +75,16 @@ public final class FoodService {
                 .collect(toList());
     }
 
-    @Nullable
-    public final FoodEatenDTO findFoodEatenById(@Nonnull final UUID foodEatenId) {
+
+    public final FoodEatenDTO findFoodEatenById(final UUID foodEatenId) {
         final FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
         return foodEatenDTOConverter.convert(foodEaten);
     }
 
-    public final void addFoodEaten(
-            @Nonnull final UUID userId,
-            @Nonnull final UUID foodId,
-            @Nonnull final Date date
+    public final FoodEatenDTO addFoodEaten(
+            final UUID userId,
+            final UUID foodId,
+            final Date date
     ) {
         final boolean duplicate = findEatenOnDate(userId, date).stream()
                 .anyMatch( (FoodEatenDTO foodAlreadyEaten) -> foodAlreadyEaten.getFood().getId().equals(foodId) );
@@ -105,48 +101,58 @@ public final class FoodService {
             );
             foodEatenRepository.save(foodEaten);
             reportDataService.updateUserFromDate(user, date);
+            return foodEatenDTOConverter.convert(foodEaten);
+        } else {
+            return null;
         }
     }
 
-    public final void updateFoodEaten(
-            @Nonnull final UUID foodEatenId,
+    public final FoodEatenDTO updateFoodEaten(
+            final UUID foodEatenId,
             final double servingQty,
-            @Nonnull final Food.ServingType servingType
+            final Food.ServingType servingType
     ) {
         final FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
         foodEaten.setServingQty(servingQty);
         foodEaten.setServingType(servingType);
         foodEatenRepository.save(foodEaten);
         reportDataService.updateUserFromDate(foodEaten.getUser(), foodEaten.getDate());
+        return foodEatenDTOConverter.convert(foodEaten);
     }
 
-    public final void deleteFoodEaten(@Nonnull final UUID foodEatenId) {
+    public final void deleteFoodEaten(final UUID foodEatenId) {
         final FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
         reportDataService.updateUserFromDate(foodEaten.getUser(), foodEaten.getDate());
         foodEatenRepository.delete(foodEaten);
     }
 
-    @Nonnull
     public final List<FoodDTO> searchFoods(
-            @Nonnull final UUID userId,
-            @Nonnull final String searchString
+            final UUID userId,
+            final String searchString
     ) {
         final User user = userRepository.findOne(userId);
         final List<Food> foods = foodRepository.findByNameLike(user, searchString);
         return foods.stream().map(foodDTOConverter::convert).collect(toList());
     }
 
-    @Nullable
-    public final FoodDTO getFoodById(@Nonnull final UUID foodId) {
+
+    public final FoodDTO getFoodById(final UUID foodId) {
         final Food food = foodRepository.findOne(foodId);
         return foodDTOConverter.convert(food);
     }
 
-    /** @return A message, suitable for UI display, indicating the result of the save operation. */
-    @Nonnull
+    /**
+     * Persists all changes to a given food record, if it's already owned by the given user.  Otherwise, if
+     * this is a global food record without an owner, then this method creates a new copy of that food which IS
+     * owned by the given user.
+     *
+     * @param foodDTO The food to be updated.
+     * @param userDTO The user who will own this food record.
+     * @return A message, suitable for UI display, indicating the result of the save operation.
+     */
     public final String updateFood(
-            @Nonnull final FoodDTO foodDTO,
-            @Nonnull final UserDTO userDTO
+            final FoodDTO foodDTO,
+            final UserDTO userDTO
     ) {
         String resultMessage = "";
         // Halt if this operation is not allowed
@@ -198,11 +204,16 @@ public final class FoodService {
         return resultMessage;
     }
 
-    /** @return A message, suitable for UI display, indicating the result of the save operation. */
-    @Nonnull
+    /**
+     * Creates a new food record, to be owned by the given user.
+     *
+     * @param foodDTO The food to be updated.
+     * @param userDTO The user who will own this food record.
+     * @return A message, suitable for UI display, indicating the result of the save operation.
+     */
     public final String createFood(
-            @Nonnull final FoodDTO foodDTO,
-            @Nonnull final UserDTO userDTO
+            final FoodDTO foodDTO,
+            final UserDTO userDTO
     ) {
         String resultMessage = "";
 

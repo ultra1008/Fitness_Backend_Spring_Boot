@@ -5,16 +5,14 @@ import com.steveperkins.fitnessjiffy.domain.Weight;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
 
 public interface WeightRepository extends CrudRepository<Weight, UUID> {
 
-    @Nonnull
-    public List<Weight> findByUserOrderByDateDesc(@Nonnull User user);
+
+    List<Weight> findByUserOrderByDateDesc(User user);
 
     /**
      * Unfortunately, this method is using a native query because JPQL does not support the "LIMIT" keyword.
@@ -30,10 +28,10 @@ public interface WeightRepository extends CrudRepository<Weight, UUID> {
                     + "ORDER BY weight.date DESC LIMIT 1",
             nativeQuery = true
     )
-    @Nullable
-    public Weight findByUserMostRecentOnDate(
-            @Nonnull User user,
-            @Nonnull Date date
+
+    Weight findByUserMostRecentOnDate(
+            User user,
+            Date date
     );
 
     /**
@@ -41,10 +39,10 @@ public interface WeightRepository extends CrudRepository<Weight, UUID> {
      * on which weight entry might have been skipped.  "findByUserAndDate", however, looks only on the specified
      * date with no adjustment... for purposes of updating a particular weight entry correctly.
      */
-    @Nullable
-    public Weight findByUserAndDate(
-            @Nonnull User user,
-            @Nonnull Date date
+
+    Weight findByUserAndDate(
+            User user,
+            Date date
     );
 
 }

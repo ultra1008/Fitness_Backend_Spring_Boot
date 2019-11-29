@@ -1,7 +1,5 @@
 package com.steveperkins.fitnessjiffy.domain;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -35,9 +33,9 @@ public final class Weight {
     private Double pounds;
 
     public Weight(
-            @Nullable final UUID id,
-            @Nonnull final User user,
-            @Nonnull final Date date,
+            final UUID id,
+            final User user,
+            final Date date,
             final double pounds
     ) {
         this.id = Optional.ofNullable(id).orElse(UUID.randomUUID());
@@ -49,39 +47,39 @@ public final class Weight {
     public Weight() {
     }
 
-    @Nonnull
+
     public UUID getId() {
         return id;
     }
 
-    public void setId(@Nonnull final UUID id) {
+    public void setId(final UUID id) {
         this.id = id;
     }
 
-    @Nonnull
+
     public User getUser() {
         return user;
     }
 
-    public void setUser(@Nonnull final User user) {
+    public void setUser(final User user) {
         this.user = user;
     }
 
-    @Nonnull
+
     public Date getDate() {
         return (Date) date.clone();
     }
 
-    public void setDate(@Nonnull final Date date) {
+    public void setDate(final Date date) {
         this.date = (Date) date.clone();
     }
 
-    @Nonnull
+
     public Double getPounds() {
         return pounds;
     }
 
-    public void setPounds(@Nonnull final Double pounds) {
+    public void setPounds(final Double pounds) {
         this.pounds = pounds;
     }
 

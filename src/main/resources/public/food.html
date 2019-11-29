@@ -25,19 +25,6 @@
     <script>
     $(function () {
 
-        // Initialize the current-date variable
-        var date = new Date();
-        var year = date.getFullYear();
-        var month = date.getMonth() + 1;
-        if (month < 10) {
-            month = "0" + month;
-        }
-        var day = date.getDate();
-        if (day < 10) {
-            day = "0" + day;
-        }
-        dateString = year + "-" + month + "-" + day;
-
         // Initialize the Datepicker widget
         $("#datepicker").datepicker({
             format: "yyyy-mm-dd",
@@ -45,152 +32,26 @@
             todayHighlight: true,
             todayBtn: "linked"
         });
-        $("#datepicker").datepicker("setDate", dateString);
+        $("#datepicker").datepicker("setDate", parseCurrentDate());
         $("#datepicker").datepicker().on("changeDate", function(e) {
             loadFoodsEaten($('#datepicker').val());
+            loadRecentFoods($('#datepicker').val());
         });
 
         // Style the "update" and "delete" icons on each food eaten table row
         $(".glyphicon-pencil").tooltip();
         $(".glyphicon-trash").tooltip();
 
-        loadFoodsEaten(dateString);
-
-        function loadFoodsEaten(dateString) {
-            var foodsEaten;
-            var exercisesPerformed;
-            $.when(
-                $.get("/api/foodeaten/" + dateString, function (payload) {
-                    foodsEaten = payload;
-                }) //,
-
-//                $.get("/api/exerciseperformed/" + dateString, function (result) {
-//                    exercisesPerformed = result;
-//                })
-            ).then(function() {
-                // success
-                function roundDouble(number) {
-                    return number % 1 == 0 ? number : number.toFixed(2);
-                }
-                function buildOption(actualValue, expectedValue) {
-                    return '<option value="' + expectedValue + '" ' + (expectedValue.toUpperCase() == actualValue ? 'selected="selected"' : '') + '>' + expectedValue + '</option>';
-                }
-                $('#foodsEaten tbody').empty();
-                $('#foodsEaten tfoot').empty();
-                var totalCalories = 0;
-                var totalFat = 0;
-                var totalSaturatedFat = 0;
-                var totalSodium = 0;
-                var totalCarbs = 0;
-                var totalFiber = 0;
-                var totalSugar = 0;
-                var totalProtein = 0;
-                var totalPoints = 0;
-                for (var index = 0; index < foodsEaten.length; index++) {
-                    totalCalories += foodsEaten[index].calories;
-                    totalFat += foodsEaten[index].fat;
-                    totalSaturatedFat += foodsEaten[index].saturatedFat;
-                    totalSodium += foodsEaten[index].sodium;
-                    totalCarbs += foodsEaten[index].carbs;
-                    totalFiber += foodsEaten[index].fiber;
-                    totalSugar += foodsEaten[index].sugar;
-                    totalProtein += foodsEaten[index].protein;
-                    totalPoints += foodsEaten[index].points;
-                    var servingTypeOptions = '';
-                    if (foodsEaten[index].servingType == 'CUSTOM') {
-                        servingTypeOptions = '<option value="CUSTOM">CUSTOM</option>';
-                    } else {
-                        servingTypeOptions += buildOption(foodsEaten[index].servingType, 'ounce');
-                        servingTypeOptions += '<option value="cup" ' + (foodsEaten[index].servingType == 'CUP' ? 'selected="selected"' : '') + '>cup</option>';
-                        servingTypeOptions += '<option value="pound" ' + (foodsEaten[index].servingType == 'POUND' ? 'selected="selected"' : '') + '>pound</option>';
-                        servingTypeOptions += '<option value="pint" ' + (foodsEaten[index].servingType == 'PINT' ? 'selected="pint"' : '') + '>pint</option>';
-                        servingTypeOptions += '<option value="tablespoon" ' + (foodsEaten[index].servingType == 'TABLESPOON' ? 'selected="tablespoon"' : '') + '>tablespoon</option>';
-                        servingTypeOptions += '<option value="teaspoon" ' + (foodsEaten[index].servingType == 'TEASPOON' ? 'selected="teaspoon"' : '') + '>teaspoon</option>';
-                        servingTypeOptions += '<option value="gram" ' + (foodsEaten[index].servingType == 'gram' ? 'selected="GRAM"' : '') + '>gram</option>';
-                    }
-                    $('#foodsEaten tbody').append('<tr id="' + foodsEaten[index].id + '">'
-                            + '<td width="30%">' + foodsEaten[index].food.name + '</td>'
-                            + '<td><input class="form-control" type="text" size="2" value="' + foodsEaten[index].servingQty + '"/></td>'
-                            + '<td><select class="form-control">' + servingTypeOptions + '</select></td>'
-                            + '<td>' + Math.round(foodsEaten[index].calories) + '</td>'
-                            + '<td>' + roundDouble(foodsEaten[index].fat) + '</td>'
-                            + '<td>' + roundDouble(foodsEaten[index].saturatedFat) + '</td>'
-                            + '<td>' + roundDouble(foodsEaten[index].sodium) + '</td>'
-                            + '<td>' + roundDouble(foodsEaten[index].carbs) + '</td>'
-                            + '<td>' + roundDouble(foodsEaten[index].fiber) + '</td>'
-                            + '<td>' + roundDouble(foodsEaten[index].sugar) + '</td>'
-                            + '<td>' + roundDouble(foodsEaten[index].protein) + '</td>'
-                            + '<td><span class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" data-original-title="Delete"/></td>'
-                            + '</tr>'
-                    );
-                    var servingQtyInput = $('#' + foodsEaten[index].id).find('input');
-                    var servingTypeInput = $('#' + foodsEaten[index].id).find('select');
-                    var deleteButton = $('#' + foodsEaten[index].id).find('span.glyphicon');
-                    servingQtyInput.on('change', servingQtyInput, updateFoodEaten);
-                    servingTypeInput.on('change', servingTypeInput, updateFoodEaten);
-                    deleteButton.on('click', deleteButton, deleteFoodEaten);
-                }
-                $('#foodsEaten tfoot').append('<tr class="strong">'
-                        + '<td width="30%"><br/>TOTAL:</td><td><br/>&nbsp;</td><td><br/>&nbsp;</td>'
-                        + '<td>' + Math.round(totalCalories) + '<br/></td>'
-                        + '<td>' + roundDouble(totalFat) + '<br/></td>'
-                        + '<td>' + roundDouble(totalSaturatedFat) + '<br/></td>'
-                        + '<td>' + roundDouble(totalSodium) + '<br/></td>'
-                        + '<td>' + roundDouble(totalCarbs) + '<br/></td>'
-                        + '<td>' + roundDouble(totalFiber) + '<br/></td>'
-                        + '<td>' + roundDouble(totalSugar) + '<br/></td>'
-                        + '<td>' + roundDouble(totalProtein) + '<br/></td>'
-                        + '<td>' + Math.round(totalCalories) + ' net cal.</td>'
-                        + "</tr>"
-                );
-            }, function () {
-                console.log('An error occurred retrieving food eaten or exercise performed data for this date');
-            });
-            
-        }
-
-        function updateFoodEaten(event) {
-            var input = event.data;
-            var id = $(input).parent().parent().attr('id');
-            var servingQty = $(input).parent().parent().find('input').val();
-            var servingType = $(input).parent().parent().find('select').val();
-            $.post({
-                url: '/api/foodeaten/' + id,
-                contentType: 'application/json',
-                data: JSON.stringify({ servingType: servingType, servingQty: servingQty })
-            }).done(function() {
-                $(input).css('border', '2px solid green');
-                setTimeout(function() {
-                    $(input).css('border', '0.666667px solid rgb(223, 215, 202');
-                }, 1000);
-            }).fail(function(jqXHR, textStatus) {
-                console.log('An error occurred updating a food eaten: ' + textStatus);
-                $(input).css('border', '2px solid red');
-            });
-        }
-
-        function deleteFoodEaten(event) {
-            var input = event.data;
-            var id = $(input).parent().parent().attr('id');
-            $.ajax({
-                method: 'DELETE',
-                url: '/api/foodeaten/' + id
-            }).done(function() {
-                $(input).parent().parent().css('border', '2px solid green');
-                setTimeout(function() {
-                    $(input).parent().parent().remove();
-                }, 500);
-            }).fail(function(jqXHR, textStatus) {
-                console.log('An error occurred deleting a food eaten: ' + textStatus);
-                $(input).parent().parent().css('border', '2px solid red');
-            });
-        }
-
-
+        // Load page data (i.e. today's eaten foods table, and the "Recently Eaten Foods" select)
+        var foodsEaten = [];
+        var exerciseCalories = 0;
+        loadRecentFoods(parseCurrentDate());
+        loadFoodsEaten(parseCurrentDate());
 
         // Add event handling to the "Recent Foods" add button
         $("#recentFoodsButton").click(function () {
-            addFoodEatenFromRecent();
+            var foodId = $("#recentFoodsSelect").val();
+            addFoodEaten(foodId, $('#datepicker').val());
         });
 
         // Add event handling to the "Search Foods" button
@@ -207,6 +68,221 @@
         $("#editFoodSubmitButton").click(function () {
             editFoodSubmit();
         });
+
+        /** Parse today's date in yyyy-mm-dd format. */
+        function parseCurrentDate() {
+            var date = new Date();
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1;
+            if (month < 10) {
+                month = "0" + month;
+            }
+            var day = date.getDate();
+            if (day < 10) {
+                day = "0" + day;
+            }
+            return year + "-" + month + "-" + day;
+        }
+
+        /** Populates the eaten foods table, when the page is first loaded and when the date is changed. */
+        function loadFoodsEaten(dateString) {
+            var foodsEatenPayload;
+            var exercisesPerformedPayload;
+            $.when(
+                $.get("/api/foodeaten/" + dateString, function (payload) {
+                    foodsEatenPayload = payload;
+                }),
+
+                $.get("/api/exerciseperformed/" + dateString, function (payload) {
+                    exercisesPerformedPayload = payload;
+                })
+            ).then(function() {
+                // success
+                foodsEaten = foodsEatenPayload;
+
+                exerciseCalories = 0;
+                for (var index = 0; index < exercisesPerformedPayload.length; index++) {
+                    exerciseCalories += exercisesPerformedPayload[index].caloriesBurned;
+                }
+
+                renderFoodsEaten();
+            }, function () {
+                // failure
+                console.log('An error occurred retrieving food eaten or exercise performed data for this date');
+            });
+
+        }
+
+        function renderFoodsEaten() {
+            function roundDouble(number) {
+                return number % 1 == 0 ? number : number.toFixed(2);
+            }
+            function buildOption(actualValue, expectedValue) {
+                return '<option value="' + expectedValue + '" ' + (expectedValue.toUpperCase() == actualValue ? 'selected="selected"' : '') + '>' + expectedValue + '</option>';
+            }
+            $('#foodsEaten tbody').empty();
+            $('#foodsEaten tfoot').empty();
+            var totalCalories = 0;
+            var totalFat = 0;
+            var totalSaturatedFat = 0;
+            var totalSodium = 0;
+            var totalCarbs = 0;
+            var totalFiber = 0;
+            var totalSugar = 0;
+            var totalProtein = 0;
+            var sortedFoodsEaten = foodsEaten.sort(function(a, b) {
+                if (a.food.name < b.food.name) {
+                    return -1;
+                }
+                if (a.food.name > b.food.name) {
+                    return 1;
+                }
+                return 0;
+            });
+            for (var index = 0; index < sortedFoodsEaten.length; index++) {
+                var foodEaten = sortedFoodsEaten[index];
+
+                totalCalories += foodEaten.calories;
+                totalFat += foodEaten.fat;
+                totalSaturatedFat += foodEaten.saturatedFat;
+                totalSodium += foodEaten.sodium;
+                totalCarbs += foodEaten.carbs;
+                totalFiber += foodEaten.fiber;
+                totalSugar += foodEaten.sugar;
+                totalProtein += foodEaten.protein;
+                var servingTypeOptions = '';
+                if (foodEaten.servingType == 'CUSTOM') {
+                    servingTypeOptions = '<option value="CUSTOM">CUSTOM</option>';
+                } else {
+                    servingTypeOptions += buildOption(foodEaten.servingType, 'ounce');
+                    servingTypeOptions += '<option value="cup" ' + (foodEaten.servingType == 'CUP' ? 'selected="selected"' : '') + '>cup</option>';
+                    servingTypeOptions += '<option value="pound" ' + (foodEaten.servingType == 'POUND' ? 'selected="selected"' : '') + '>pound</option>';
+                    servingTypeOptions += '<option value="pint" ' + (foodEaten.servingType == 'PINT' ? 'selected="pint"' : '') + '>pint</option>';
+                    servingTypeOptions += '<option value="tablespoon" ' + (foodEaten.servingType == 'TABLESPOON' ? 'selected="tablespoon"' : '') + '>tablespoon</option>';
+                    servingTypeOptions += '<option value="teaspoon" ' + (foodEaten.servingType == 'TEASPOON' ? 'selected="teaspoon"' : '') + '>teaspoon</option>';
+                    servingTypeOptions += '<option value="gram" ' + (foodEaten.servingType == 'gram' ? 'selected="GRAM"' : '') + '>gram</option>';
+                }
+                $('#foodsEaten tbody').append('<tr id="' + foodEaten.id + '">'
+                    + '<td width="30%">' + foodEaten.food.name + '</td>'
+                    + '<td><input class="form-control" type="text" size="2" value="' + foodEaten.servingQty + '"/></td>'
+                    + '<td><select class="form-control">' + servingTypeOptions + '</select></td>'
+                    + '<td>' + Math.round(foodEaten.calories) + '</td>'
+                    + '<td>' + roundDouble(foodEaten.fat) + '</td>'
+                    + '<td>' + roundDouble(foodEaten.saturatedFat) + '</td>'
+                    + '<td>' + roundDouble(foodEaten.sodium) + '</td>'
+                    + '<td>' + roundDouble(foodEaten.carbs) + '</td>'
+                    + '<td>' + roundDouble(foodEaten.fiber) + '</td>'
+                    + '<td>' + roundDouble(foodEaten.sugar) + '</td>'
+                    + '<td>' + roundDouble(foodEaten.protein) + '</td>'
+                    + '<td><span class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" data-original-title="Delete"/></td>'
+                    + '</tr>'
+                );
+                var servingQtyInput = $('#' + foodEaten.id).find('input');
+                var servingTypeInput = $('#' + foodEaten.id).find('select');
+                var deleteButton = $('#' + foodEaten.id).find('span.glyphicon');
+                servingQtyInput.on('change', servingQtyInput, updateFoodEaten);
+                servingTypeInput.on('change', servingTypeInput, updateFoodEaten);
+                deleteButton.on('click', deleteButton, deleteFoodEaten);
+            }
+            var netCalories = totalCalories - exerciseCalories;
+            $('#foodsEaten tfoot').append('<tr class="strong">'
+                + '<td width="30%"><br/>TOTAL:</td><td><br/>&nbsp;</td><td><br/>&nbsp;</td>'
+                + '<td>' + Math.round(totalCalories) + '<br/></td>'
+                + '<td>' + roundDouble(totalFat) + '<br/></td>'
+                + '<td>' + roundDouble(totalSaturatedFat) + '<br/></td>'
+                + '<td>' + roundDouble(totalSodium) + '<br/></td>'
+                + '<td>' + roundDouble(totalCarbs) + '<br/></td>'
+                + '<td>' + roundDouble(totalFiber) + '<br/></td>'
+                + '<td>' + roundDouble(totalSugar) + '<br/></td>'
+                + '<td>' + roundDouble(totalProtein) + '<br/></td>'
+                + '<td>' + Math.round(netCalories) + ' net cal.</td>'
+                + "</tr>"
+            );
+        }
+
+        /** Adds a new food eaten for the currently selected date. */
+        function addFoodEaten(foodId, dateString) {
+            $.ajax({
+                method: 'POST',
+                url: '/api/foodeaten',
+                contentType: 'application/json',
+                data: JSON.stringify({ id: foodId, date: dateString })
+            }).done(function(foodEatenPayload) {
+                foodsEaten.push(foodEatenPayload);
+                renderFoodsEaten();
+            }).fail(function(jqXHR, textStatus) {
+                console.log('An error occurred adding a food eaten: ' + textStatus);
+            });
+        }
+
+        /** Update an existing food eaten, when its serving type or qty is changed in the foods eaten table. */
+        function updateFoodEaten(event) {
+            var input = event.data;
+            var id = $(input).parent().parent().attr('id');
+            var servingQty = $(input).parent().parent().find('input').val();
+            var servingType = $(input).parent().parent().find('select').val();
+            $.ajax({
+                method: 'PUT',
+                url: '/api/foodeaten/' + id,
+                contentType: 'application/json',
+                data: JSON.stringify({ servingType: servingType, servingQty: servingQty })
+            }).done(function(updatedFoodEaten) {
+                for (var index = 0; index < foodsEaten.length; index++) {
+                    if (foodsEaten[index].id = updatedFoodEaten.id) {
+                        foodsEaten[index] = updatedFoodEaten;
+                    }
+                }
+                $(input).css('border', '2px solid green');
+                setTimeout(function() {
+                    $(input).css('border', '0.666667px solid rgb(223, 215, 202');
+                }, 1000);
+            }).fail(function(jqXHR, textStatus) {
+                console.log('An error occurred updating a food eaten: ' + textStatus);
+                $(input).css('border', '2px solid red');
+            });
+        }
+
+        /** Delete an existing food eaten, when it is removed from the foods eaten table. */
+        function deleteFoodEaten(event) {
+            var input = event.data;
+            var id = $(input).parent().parent().attr('id');
+            $.ajax({
+                method: 'DELETE',
+                url: '/api/foodeaten/' + id
+            }).done(function() {
+                for (var index = 0; index < foodsEaten.length; index++) {
+                    if (foodsEaten[index].id = id) {
+                        delete foodsEaten[index];
+                    }
+                }
+                $(input).parent().parent().css('border', '2px solid green');
+                setTimeout(function() {
+                    $(input).parent().parent().remove();
+                }, 500);
+            }).fail(function(jqXHR, textStatus) {
+                console.log('An error occurred deleting a food eaten: ' + textStatus);
+                $(input).parent().parent().css('border', '2px solid red');
+            });
+        }
+
+        /**
+         * Populate the "Recently Eaten Foods" select pull-down, when the page is first loaded and when the date
+         * is changed.
+         */
+        function loadRecentFoods(dateString) {
+            $.ajax({
+                method: 'GET',
+                url: '/api/food/recent/' + dateString
+            }).done(function (recentFoodsPayload) {
+                $('#recentFoodsSelect').empty();
+                for (var index = 0; index < recentFoodsPayload.length; index++) {
+                    var recentFood = recentFoodsPayload[index];
+                    $('#recentFoodsSelect').append('<option value="' + recentFood.id + '">' + recentFood.name + '</option>')
+                }
+            }).fail(function(jqXHR, textStatus) {
+                console.log('An error occurred when loading recently eaten foods: ' + textStatus);
+            });
+        }
 
     });
 
@@ -238,12 +314,6 @@
                 alert("Request failed: " + textStatus);
             }
         });
-    }
-
-    /** Called when the "Add Food" button is clicked beside the "Recently Eaten Foods" pull-down. */
-    function addFoodEatenFromRecent() {
-        var foodId = $("#recentFoodsSelect").val();
-        window.location.href = "/food/eaten/add?date=" + dateString + "&foodId=" + foodId;
     }
 
     /** Called when the "Add" button is clicked for a food in the Search Foods modal. */
@@ -363,24 +433,6 @@
             }
         });
     }
-
-    /** Called when the update icon is clicked on a row in the foods eaten table. */
-    function updateFoodEaten(foodEatenId) {
-        var form = $("#foodEatenForm-" + foodEatenId);
-        var action = $("#action-" + foodEatenId);
-        $(action).val("update");
-        $(form).submit();
-    }
-
-    /** Called when the delete icon is clicked on a row in the foods eaten table. */
-    function deleteFoodEaten(foodEatenId) {
-        if( confirm('Are you SURE you want to delete this food entry?') ) {
-            var form = $("#foodEatenForm-" + foodEatenId);
-            var action = $("#action-" + foodEatenId);
-            $(action).val("delete");
-            $(form).submit();
-        }
-    }
     </script>
 </head>
 
@@ -429,10 +481,7 @@
             <div class="col-sm-5 center-content vcenter-content">
                 <label>
                     <div class="strong">Recently Eaten Foods:</div>
-                    <select class="form-control" id="recentFoodsSelect" name="recentFoods">
-                        <option th:each="recentFood : ${foodsEatenRecently}" th:value="${recentFood.id}">
-                            <span th:text="${recentFood.name}"/></option>
-                    </select>
+                    <select class="form-control" id="recentFoodsSelect" name="recentFoods"></select>
                     <button class="btn btn-default" id="recentFoodsButton">Add Food</button>
                 </label>
             </div><!--

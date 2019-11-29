@@ -1,7 +1,5 @@
 package com.steveperkins.fitnessjiffy.domain;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -22,8 +20,8 @@ public class User {
 
         MALE, FEMALE;
 
-        @Nullable
-        public static Gender fromString(@Nonnull final String s) {
+
+        public static Gender fromString(final String s) {
             Gender match = null;
             for (final Gender gender : Gender.values()) {
                 if (gender.toString().equalsIgnoreCase(s)) {
@@ -46,11 +44,11 @@ public class User {
 
         private double value;
 
-        private ActivityLevel(final double value) {
+        ActivityLevel(final double value) {
             this.value = value;
         }
 
-        @Nullable
+
         public static ActivityLevel fromValue(final double value) {
             ActivityLevel match = null;
             for (final ActivityLevel activityLevel : ActivityLevel.values()) {
@@ -61,8 +59,8 @@ public class User {
             return match;
         }
 
-        @Nullable
-        public static ActivityLevel fromString(@Nonnull final String s) {
+
+        public static ActivityLevel fromString(final String s) {
             ActivityLevel match = null;
             for (final ActivityLevel activityLevel : ActivityLevel.values()) {
                 if (activityLevel.toString().equalsIgnoreCase(s)) {
@@ -140,18 +138,18 @@ public class User {
     private Set<ExercisePerformed> exercisesPerformed = new HashSet<>();
 
     public User(
-            @Nullable final UUID id,
-            @Nonnull final Gender gender,
-            @Nonnull final Date birthdate,
+            final UUID id,
+            final Gender gender,
+            final Date birthdate,
             final double heightInInches,
-            @Nonnull final ActivityLevel activityLevel,
-            @Nonnull final String email,
-            @Nullable final String passwordHash,
-            @Nonnull final String firstName,
-            @Nonnull final String lastName,
-            @Nonnull final String timeZone,
-            @Nonnull final Timestamp createdTime,
-            @Nonnull final Timestamp lastUpdatedTime
+            final ActivityLevel activityLevel,
+            final String email,
+            final String passwordHash,
+            final String firstName,
+            final String lastName,
+            final String timeZone,
+            final Timestamp createdTime,
+            final Timestamp lastUpdatedTime
     ) {
         this.id = Optional.ofNullable(id).orElse(UUID.randomUUID());
         this.gender = gender.toString();
@@ -170,30 +168,30 @@ public class User {
     public User() {
     }
 
-    @Nonnull
+
     public UUID getId() {
         return id;
     }
 
-    public void setId(@Nonnull final UUID id) {
+    public void setId(final UUID id) {
         this.id = id;
     }
 
-    @Nonnull
+
     public Gender getGender() {
         return Gender.fromString(gender);
     }
 
-    public void setGender(@Nonnull final Gender gender) {
+    public void setGender(final Gender gender) {
         this.gender = gender.toString();
     }
 
-    @Nonnull
+
     public Date getBirthdate() {
         return (Date) birthdate.clone();
     }
 
-    public void setBirthdate(@Nonnull final Date birthdate) {
+    public void setBirthdate(final Date birthdate) {
         this.birthdate = (Date) birthdate.clone();
     }
 
@@ -205,111 +203,111 @@ public class User {
         this.heightInInches = heightInInches;
     }
 
-    @Nonnull
+
     public ActivityLevel getActivityLevel() {
         return ActivityLevel.fromValue(activityLevel);
     }
 
-    public void setActivityLevel(@Nonnull final ActivityLevel activityLevel) {
+    public void setActivityLevel(final ActivityLevel activityLevel) {
         this.activityLevel = activityLevel.getValue();
     }
 
-    @Nonnull
+
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(@Nonnull final String email) {
+    public void setEmail(final String email) {
         this.email = email;
     }
 
-    @Nullable
+
     public String getPasswordHash() {
         return passwordHash;
     }
 
-    public void setPasswordHash(@Nullable final String passwordHash) {
+    public void setPasswordHash(final String passwordHash) {
         this.passwordHash = passwordHash;
     }
 
-    @Nonnull
+
     public String getFirstName() {
         return firstName;
     }
 
-    public void setFirstName(@Nonnull final String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
-    @Nonnull
+
     public String getLastName() {
         return lastName;
     }
 
-    public void setLastName(@Nonnull final String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
-    @Nonnull
+
     public String getTimeZone() {
         return timeZone;
     }
 
-    public void setTimeZone(@Nonnull final String timeZone) {
+    public void setTimeZone(final String timeZone) {
         this.timeZone = timeZone;
     }
 
-    @Nonnull
+
     public Timestamp getCreatedTime() {
         return (Timestamp) createdTime.clone();
     }
 
-    public void setCreatedTime(@Nonnull final Timestamp createdTime) {
+    public void setCreatedTime(final Timestamp createdTime) {
         this.createdTime = (Timestamp) createdTime.clone();
     }
 
-    @Nonnull
+
     public Timestamp getLastUpdatedTime() {
         return (Timestamp) lastUpdatedTime.clone();
     }
 
-    public void setLastUpdatedTime(@Nonnull final Timestamp lastUpdatedTime) {
+    public void setLastUpdatedTime(final Timestamp lastUpdatedTime) {
         this.lastUpdatedTime = (Timestamp) lastUpdatedTime.clone();
     }
 
-    @Nonnull
+
     public Set<Weight> getWeights() {
         return weights;
     }
 
-    public void setWeights(@Nonnull final Set<Weight> weights) {
+    public void setWeights(final Set<Weight> weights) {
         this.weights = weights;
     }
 
-    @Nonnull
+
     public Set<Food> getFoods() {
         return foods;
     }
 
-    public void setFoods(@Nonnull final Set<Food> foods) {
+    public void setFoods(final Set<Food> foods) {
         this.foods = foods;
     }
 
-    @Nonnull
+
     public Set<FoodEaten> getFoodsEaten() {
         return foodsEaten;
     }
 
-    public void setFoodsEaten(@Nonnull final Set<FoodEaten> foodsEaten) {
+    public void setFoodsEaten(final Set<FoodEaten> foodsEaten) {
         this.foodsEaten = foodsEaten;
     }
 
-    @Nonnull
+
     public Set<ExercisePerformed> getExercisesPerformed() {
         return exercisesPerformed;
     }
 
-    public void setExercisesPerformed(@Nonnull final Set<ExercisePerformed> exercisesPerformed) {
+    public void setExercisesPerformed(final Set<ExercisePerformed> exercisesPerformed) {
         this.exercisesPerformed = exercisesPerformed;
     }
 

@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletException;
@@ -15,9 +16,10 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @RestController
+@RequestMapping("/api/auth")
 public class AuthController extends AbstractController {
 
-    @PostMapping(value = "/api/auth/userpass")
+    @PostMapping("/userpass")
     public LoginResponse doLogin(
             @RequestBody final Map<String, Object> payload,
             final HttpServletResponse response
