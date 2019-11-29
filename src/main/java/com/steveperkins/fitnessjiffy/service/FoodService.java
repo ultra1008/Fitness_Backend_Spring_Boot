@@ -141,7 +141,15 @@ public final class FoodService {
         return foodDTOConverter.convert(food);
     }
 
-    /** @return A message, suitable for UI display, indicating the result of the save operation. */
+    /**
+     * Persists all changes to a given food record, if it's already owned by the given user.  Otherwise, if
+     * this is a global food record without an owner, then this method creates a new copy of that food which IS
+     * owned by the given user.
+     *
+     * @param foodDTO The food to be updated.
+     * @param userDTO The user who will own this food record.
+     * @return A message, suitable for UI display, indicating the result of the save operation.
+     */
     public final String updateFood(
             final FoodDTO foodDTO,
             final UserDTO userDTO
@@ -196,7 +204,13 @@ public final class FoodService {
         return resultMessage;
     }
 
-    /** @return A message, suitable for UI display, indicating the result of the save operation. */
+    /**
+     * Creates a new food record, to be owned by the given user.
+     *
+     * @param foodDTO The food to be updated.
+     * @param userDTO The user who will own this food record.
+     * @return A message, suitable for UI display, indicating the result of the save operation.
+     */
     public final String createFood(
             final FoodDTO foodDTO,
             final UserDTO userDTO

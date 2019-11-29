@@ -1,5 +1,7 @@
 package com.steveperkins.fitnessjiffy.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.UUID;
@@ -7,7 +9,7 @@ import java.util.UUID;
 public final class ExercisePerformedDTO implements Serializable {
 
     private UUID id;
-    private UUID userId;
+    @JsonIgnore private UUID userId;
     private ExerciseDTO exercise;
     private Date date;
     private int minutes;

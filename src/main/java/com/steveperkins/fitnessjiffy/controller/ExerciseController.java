@@ -35,6 +35,23 @@ final class ExerciseController extends AbstractController {
         this.exerciseService = exerciseService;
     }
 
+    @GetMapping("/api/exerciseperformed/{date}")
+    @ResponseBody
+    public final List<ExercisePerformedDTO> loadExercisesPerformed(
+            @PathVariable(name = "date") final String dateString,
+            final HttpServletRequest request
+    ) {
+        final UserDTO userDTO = currentAuthenticatedUser(request);
+        final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
+        return exerciseService.findPerformedOnDate(userDTO.getId(), date);
+    }
+
+
+
+
+
+
+
     @GetMapping(value = "/exercise")
     public final String viewMainExercisePage(
             @RequestParam(value = "date", required = false) final String dateString,

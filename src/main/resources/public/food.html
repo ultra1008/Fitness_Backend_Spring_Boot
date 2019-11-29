@@ -44,6 +44,7 @@
 
         // Load page data (i.e. today's eaten foods table, and the "Recently Eaten Foods" select)
         var foodsEaten = [];
+        var exerciseCalories = 0;
         loadRecentFoods(parseCurrentDate());
         loadFoodsEaten(parseCurrentDate());
 
@@ -90,15 +91,20 @@
             $.when(
                 $.get("/api/foodeaten/" + dateString, function (payload) {
                     foodsEatenPayload = payload;
-                }) //,
+                }),
 
-                // TODO
-//                $.get("/api/exerciseperformed/" + dateString, function (result) {
-//                    exercisesPerformed = result;
-//                })
+                $.get("/api/exerciseperformed/" + dateString, function (payload) {
+                    exercisesPerformedPayload = payload;
+                })
             ).then(function() {
                 // success
                 foodsEaten = foodsEatenPayload;
+
+                exerciseCalories = 0;
+                for (var index = 0; index < exercisesPerformedPayload.length; index++) {
+                    exerciseCalories += exercisesPerformedPayload[index].caloriesBurned;
+                }
+
                 renderFoodsEaten();
             }, function () {
                 // failure
@@ -124,7 +130,6 @@
             var totalFiber = 0;
             var totalSugar = 0;
             var totalProtein = 0;
-            var totalPoints = 0;
             var sortedFoodsEaten = foodsEaten.sort(function(a, b) {
                 if (a.food.name < b.food.name) {
                     return -1;
@@ -145,7 +150,6 @@
                 totalFiber += foodEaten.fiber;
                 totalSugar += foodEaten.sugar;
                 totalProtein += foodEaten.protein;
-                totalPoints += foodEaten.points;
                 var servingTypeOptions = '';
                 if (foodEaten.servingType == 'CUSTOM') {
                     servingTypeOptions = '<option value="CUSTOM">CUSTOM</option>';
@@ -180,6 +184,7 @@
                 servingTypeInput.on('change', servingTypeInput, updateFoodEaten);
                 deleteButton.on('click', deleteButton, deleteFoodEaten);
             }
+            var netCalories = totalCalories - exerciseCalories;
             $('#foodsEaten tfoot').append('<tr class="strong">'
                 + '<td width="30%"><br/>TOTAL:</td><td><br/>&nbsp;</td><td><br/>&nbsp;</td>'
                 + '<td>' + Math.round(totalCalories) + '<br/></td>'
@@ -190,7 +195,7 @@
                 + '<td>' + roundDouble(totalFiber) + '<br/></td>'
                 + '<td>' + roundDouble(totalSugar) + '<br/></td>'
                 + '<td>' + roundDouble(totalProtein) + '<br/></td>'
-                + '<td>' + Math.round(totalCalories) + ' net cal.</td>'
+                + '<td>' + Math.round(netCalories) + ' net cal.</td>'
                 + "</tr>"
             );
         }
