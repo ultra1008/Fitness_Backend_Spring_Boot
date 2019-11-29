@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -20,13 +18,13 @@ public final class UserToUserDTO implements Converter<User, UserDTO> {
     private final WeightRepository weightRepository;
 
     @Autowired
-    public UserToUserDTO(@Nonnull final WeightRepository weightRepository) {
+    public UserToUserDTO(final WeightRepository weightRepository) {
         this.weightRepository = weightRepository;
     }
 
     @Override
-    @Nullable
-    public UserDTO convert(@Nullable final User user) {
+
+    public UserDTO convert(final User user) {
         UserDTO dto = null;
         if (user != null) {
             final double currentWeight = getCurrentWeight(user);
@@ -49,7 +47,7 @@ public final class UserToUserDTO implements Converter<User, UserDTO> {
         return dto;
     }
 
-    private double getCurrentWeight(@Nonnull final User user) {
+    private double getCurrentWeight(final User user) {
         final List<Weight> weights = weightRepository.findByUserOrderByDateDesc(user);
         double currentWeight = 0;
         if (weights != null && !weights.isEmpty()) {
@@ -59,7 +57,7 @@ public final class UserToUserDTO implements Converter<User, UserDTO> {
     }
 
     private double getBmi(
-            @Nonnull final User user,
+            final User user,
             final double currentWeight
     ) {
         double bmi = 0;
@@ -70,7 +68,7 @@ public final class UserToUserDTO implements Converter<User, UserDTO> {
     }
 
     private int getMaintenanceCalories(
-            @Nonnull final User user,
+            final User user,
             final double currentWeight
     ) {
         int maintenanceCalories = 0;
@@ -92,7 +90,7 @@ public final class UserToUserDTO implements Converter<User, UserDTO> {
     }
 
     public double getDailyPoints(
-            @Nonnull final User user,
+            final User user,
             final double currentWeight
     ) {
         double dailyPoints = 0;

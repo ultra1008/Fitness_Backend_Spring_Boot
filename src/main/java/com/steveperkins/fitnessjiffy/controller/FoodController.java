@@ -1,6 +1,5 @@
 package com.steveperkins.fitnessjiffy.controller;
 
-import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -9,7 +8,6 @@ import com.steveperkins.fitnessjiffy.domain.Food;
 import com.steveperkins.fitnessjiffy.dto.FoodDTO;
 import com.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
 import com.steveperkins.fitnessjiffy.dto.UserDTO;
-import com.steveperkins.fitnessjiffy.service.ExerciseService;
 import com.steveperkins.fitnessjiffy.service.FoodService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -25,15 +23,10 @@ import java.util.UUID;
 final class FoodController extends AbstractController {
 
     private final FoodService foodService;
-    private final ExerciseService exerciseService;
 
     @Autowired
-    public FoodController(
-            @Nonnull final FoodService foodService,
-            @Nonnull final ExerciseService exerciseService
-    ) {
+    public FoodController(final FoodService foodService) {
         this.foodService = foodService;
-        this.exerciseService = exerciseService;
     }
 
     @GetMapping("/foodeaten/{date}")
@@ -134,7 +127,7 @@ final class FoodController extends AbstractController {
     @RequestMapping(value = "/food/search/{searchString}")
     @ResponseBody
     public final List<FoodDTO> searchFoods(
-            @Nonnull @PathVariable final String searchString,
+            @PathVariable final String searchString,
             final HttpServletRequest request
     ) {
         final UserDTO userDTO = currentAuthenticatedUser(request);
@@ -144,7 +137,7 @@ final class FoodController extends AbstractController {
     @RequestMapping(value = "/food/get/{foodId}")
     @ResponseBody
     public final FoodDTO getFood(
-            @Nonnull @PathVariable final String foodId,
+            @PathVariable final String foodId,
             final HttpServletRequest request
     ) {
         final UserDTO userDTO = currentAuthenticatedUser(request);
@@ -159,7 +152,7 @@ final class FoodController extends AbstractController {
     @RequestMapping(value = "/food/update")
     @ResponseBody
     public final String createOrUpdateFood(
-            @Nonnull @ModelAttribute final FoodDTO foodDTO,
+            @ModelAttribute final FoodDTO foodDTO,
             final HttpServletRequest request,
             final Model model
     ) {

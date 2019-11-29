@@ -1,7 +1,5 @@
 package com.steveperkins.fitnessjiffy.domain;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -39,10 +37,10 @@ public class ExercisePerformed {
     private Integer minutes;
 
     public ExercisePerformed(
-            @Nullable final UUID id,
-            @Nonnull final User user,
-            @Nonnull final Exercise exercise,
-            @Nonnull final Date date,
+            final UUID id,
+            final User user,
+            final Exercise exercise,
+            final Date date,
             final int minutes
     ) {
         this.id = Optional.ofNullable(id).orElse(UUID.randomUUID());
@@ -55,48 +53,48 @@ public class ExercisePerformed {
     public ExercisePerformed() {
     }
 
-    @Nonnull
+
     public UUID getId() {
         return id;
     }
 
-    public void setId(@Nonnull final UUID id) {
+    public void setId(final UUID id) {
         this.id = id;
     }
 
-    @Nonnull
+
     public User getUser() {
         return user;
     }
 
-    public void setUser(@Nonnull final User user) {
+    public void setUser(final User user) {
         this.user = user;
     }
 
-    @Nonnull
+
     public Exercise getExercise() {
         return exercise;
     }
 
-    public void setExercise(@Nonnull final Exercise exercise) {
+    public void setExercise(final Exercise exercise) {
         this.exercise = exercise;
     }
 
-    @Nonnull
+
     public Date getDate() {
         return (Date) date.clone();
     }
 
-    public void setDate(@Nonnull final Date date) {
+    public void setDate(final Date date) {
         this.date = (Date) date.clone();
     }
 
-    @Nonnull
+
     public Integer getMinutes() {
         return minutes;
     }
 
-    public void setMinutes(@Nonnull final Integer minutes) {
+    public void setMinutes(final Integer minutes) {
         this.minutes = minutes;
     }
 

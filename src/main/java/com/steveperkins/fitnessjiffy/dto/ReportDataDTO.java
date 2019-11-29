@@ -1,6 +1,5 @@
 package com.steveperkins.fitnessjiffy.dto;
 
-import javax.annotation.Nonnull;
 import java.sql.Date;
 import java.util.UUID;
 
@@ -14,9 +13,9 @@ public final class ReportDataDTO {
     private double netPoints;
 
     public ReportDataDTO(
-            @Nonnull final UUID id,
-            @Nonnull final UUID userId,
-            @Nonnull final Date date,
+            final UUID id,
+            final UUID userId,
+            final Date date,
             final double pounds,
             final int netCalories,
             final double netPoints

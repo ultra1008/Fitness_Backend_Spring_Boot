@@ -5,14 +5,12 @@ import com.steveperkins.fitnessjiffy.dto.FoodDTO;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
-
 @Component
 public final class FoodToFoodDTO implements Converter<Food, FoodDTO> {
 
     @Override
-    @Nullable
-    public FoodDTO convert(@Nullable final Food food) {
+
+    public FoodDTO convert(final Food food) {
         FoodDTO dto = null;
         if (food != null) {
             dto = new FoodDTO(

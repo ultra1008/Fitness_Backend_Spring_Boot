@@ -20,10 +20,10 @@ public abstract class AbstractTest {
 
     @SuppressWarnings("SpringJavaAutowiringInspection")
     @Autowired
-    DataSource dataSource;
+    private DataSource dataSource;
 
     @Autowired
-    ReportDataService reportDataService;
+    private ReportDataService reportDataService;
 
     final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -31,7 +31,7 @@ public abstract class AbstractTest {
     public void before() throws Exception {
         try (
                 final Connection connection = dataSource.getConnection();
-                final Statement statement = connection.createStatement();
+                final Statement statement = connection.createStatement()
         ) {
             statement.execute("DROP ALL OBJECTS");
             statement.execute("RUNSCRIPT FROM 'classpath:/backup.sql'");

@@ -4,8 +4,6 @@ import java.sql.Date;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -46,11 +44,11 @@ public final class FoodEaten {
     private Double servingQty;
 
     public FoodEaten(
-            @Nullable final UUID id,
-            @Nonnull final User user,
-            @Nonnull final Food food,
-            @Nonnull final Date date,
-            @Nonnull final Food.ServingType servingType,
+            final UUID id,
+            final User user,
+            final Food food,
+            final Date date,
+            final Food.ServingType servingType,
             final double servingQty
     ) {
         this.id = Optional.ofNullable(id).orElse(UUID.randomUUID());
@@ -64,57 +62,57 @@ public final class FoodEaten {
     public FoodEaten() {
     }
 
-    @Nonnull
+
     public UUID getId() {
         return id;
     }
 
-    public void setId(@Nonnull final UUID id) {
+    public void setId(final UUID id) {
         this.id = id;
     }
 
-    @Nonnull
+
     public User getUser() {
         return user;
     }
 
-    public void setUser(@Nonnull final User user) {
+    public void setUser(final User user) {
         this.user = user;
     }
 
-    @Nonnull
+
     public Food getFood() {
         return food;
     }
 
-    public void setFood(@Nonnull final Food food) {
+    public void setFood(final Food food) {
         this.food = food;
     }
 
-    @Nonnull
+
     public Date getDate() {
         return (Date) date.clone();
     }
 
-    public void setDate(@Nonnull final Date date) {
+    public void setDate(final Date date) {
         this.date = (Date) date.clone();
     }
 
-    @Nonnull
+
     public Food.ServingType getServingType() {
         return servingType;
     }
 
-    public void setServingType(@Nonnull final Food.ServingType servingType) {
+    public void setServingType(final Food.ServingType servingType) {
         this.servingType = servingType;
     }
 
-    @Nonnull
+
     public Double getServingQty() {
         return servingQty;
     }
 
-    public void setServingQty(@Nonnull final Double servingQty) {
+    public void setServingQty(final Double servingQty) {
         this.servingQty = servingQty;
     }
 

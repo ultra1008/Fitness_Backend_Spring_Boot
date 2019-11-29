@@ -6,22 +6,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 @Component
 public class ExercisePerformedToExercisePerformedDTO implements Converter<ExercisePerformed, ExercisePerformedDTO> {
 
     private final ExerciseToExerciseDTO exerciseDTOConverter;
 
     @Autowired
-    public ExercisePerformedToExercisePerformedDTO(@Nonnull final ExerciseToExerciseDTO exerciseDTOConverter) {
+    public ExercisePerformedToExercisePerformedDTO(final ExerciseToExerciseDTO exerciseDTOConverter) {
         this.exerciseDTOConverter = exerciseDTOConverter;
     }
 
     @Override
-    @Nullable
-    public ExercisePerformedDTO convert(@Nullable final ExercisePerformed exercisePerformed) {
+
+    public ExercisePerformedDTO convert(final ExercisePerformed exercisePerformed) {
         ExercisePerformedDTO dto = null;
         if (exercisePerformed != null) {
             dto = new ExercisePerformedDTO();

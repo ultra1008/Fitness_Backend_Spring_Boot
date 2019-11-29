@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
-import javax.annotation.Nonnull;
 import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
@@ -21,10 +20,10 @@ public interface ExercisePerformedRepository extends CrudRepository<ExercisePerf
                 + "AND exercisePerformed.date = :date "
                 + "ORDER BY exercise.description ASC"
     )
-    @Nonnull
-    public List<ExercisePerformed> findByUserEqualsAndDateEquals(
-            @Nonnull @Param("user") User user,
-            @Nonnull @Param("date") Date date
+
+    List<ExercisePerformed> findByUserEqualsAndDateEquals(
+            @Param("user") User user,
+            @Param("date") Date date
     );
 
     @Query(
@@ -34,11 +33,11 @@ public interface ExercisePerformedRepository extends CrudRepository<ExercisePerf
                 + "AND exercisePerformed.date BETWEEN :startDate AND :endDate "
                 + "ORDER BY exercise.description ASC"
     )
-    @Nonnull
-    public List<Exercise> findByUserPerformedWithinRange(
-            @Nonnull @Param("user") User user,
-            @Nonnull @Param("startDate") Date startDate,
-            @Nonnull @Param("endDate") Date endDate
+
+    List<Exercise> findByUserPerformedWithinRange(
+            @Param("user") User user,
+            @Param("startDate") Date startDate,
+            @Param("endDate") Date endDate
     );
 
 }

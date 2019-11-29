@@ -12,17 +12,11 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.security.SecureRandom;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.ZoneId;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.StreamSupport;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
 public final class UserService {
@@ -35,11 +29,11 @@ public final class UserService {
 
     @Autowired
     public UserService(
-            @Nonnull final ReportDataService reportDataService,
-            @Nonnull final UserRepository userRepository,
-            @Nonnull final WeightRepository weightRepository,
-            @Nonnull final UserToUserDTO userDTOConverter,
-            @Nonnull final WeightToWeightDTO weightDTOConverter
+            final ReportDataService reportDataService,
+            final UserRepository userRepository,
+            final WeightRepository weightRepository,
+            final UserToUserDTO userDTOConverter,
+            final WeightToWeightDTO weightDTOConverter
     ) {
         this.reportDataService = reportDataService;
         this.userRepository = userRepository;
@@ -48,8 +42,8 @@ public final class UserService {
         this.weightDTOConverter = weightDTOConverter;
     }
 
-    @Nullable
-    public UserDTO findByEmail(@Nullable final String email) {
+
+    public UserDTO findByEmail(final String email) {
         if (email == null) {
             return null;
         }
@@ -58,8 +52,8 @@ public final class UserService {
     }
 
     public void createUser(
-            @Nonnull final UserDTO userDTO,
-            @Nonnull final String password
+            final UserDTO userDTO,
+            final String password
     ) {
         final User user = new User(
                 userDTO.getId(),
@@ -79,7 +73,7 @@ public final class UserService {
         reportDataService.updateUserFromDate(user, new Date(System.currentTimeMillis()));
     }
 
-    public void updateUser(@Nonnull final UserDTO userDTO) {
+    public void updateUser(final UserDTO userDTO) {
         updateUser(userDTO, null);
     }
 
@@ -88,13 +82,10 @@ public final class UserService {
      * TODO: Require logout and re-login after changing the username (or password?)
      * TODO: Don't allow email changes at all when using an external identity provider (e.g. Google)
      * TODO: On second thought, maybe just don't allow email changes period?
-     *
-     * @param userDTO
-     * @param newPassword
      */
     public void updateUser(
-            @Nonnull final UserDTO userDTO,
-            @Nullable final String newPassword
+            final UserDTO userDTO,
+            final String newPassword
     ) {
         final User user = userRepository.findOne(userDTO.getId());
         user.setGender(userDTO.getGender());
@@ -114,10 +105,10 @@ public final class UserService {
         reportDataService.updateUserFromDate(user, new Date(System.currentTimeMillis()));
     }
 
-    @Nullable
+
     public WeightDTO findWeightOnDate(
-            @Nonnull final UserDTO userDTO,
-            @Nonnull final Date date
+            final UserDTO userDTO,
+            final Date date
     ) {
         final User user = userRepository.findOne(userDTO.getId());
         final Weight weight = weightRepository.findByUserMostRecentOnDate(user, date);
@@ -125,8 +116,8 @@ public final class UserService {
     }
 
     public void updateWeight(
-            @Nonnull final UserDTO userDTO,
-            @Nonnull final Date date,
+            final UserDTO userDTO,
+            final Date date,
             final double pounds
     ) {
         final User user = userRepository.findOne(userDTO.getId());
@@ -146,23 +137,17 @@ public final class UserService {
     }
 
     public boolean verifyPassword(
-            @Nonnull final UserDTO userDTO,
-            @Nonnull final String password
+            final UserDTO userDTO,
+            final String password
     ) {
         final User user = userRepository.findOne(userDTO.getId());
         return BCrypt.checkpw(password, user.getPasswordHash());
     }
 
-    @Nonnull
-    public String encryptPassword(@Nonnull final String rawPassword) {
+
+    private String encryptPassword(final String rawPassword) {
         final String salt = BCrypt.gensalt(10, new SecureRandom());
         return BCrypt.hashpw(rawPassword, salt);
-    }
-
-    @Nullable
-    public String getPasswordHash(@Nonnull final UserDTO userDTO) {
-        final User user = userRepository.findOne(userDTO.getId());
-        return user.getPasswordHash();
     }
 
 }

@@ -3,8 +3,6 @@ package com.steveperkins.fitnessjiffy.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.steveperkins.fitnessjiffy.domain.Food;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -25,10 +23,10 @@ public final class FoodDTO implements Serializable {
     private double sodium;
 
     public FoodDTO(
-            @Nullable final UUID id, // will be null if this represents a new Food which hasn't yet been persisted
-            @Nullable final UUID ownerId, // will be null if this represents a "global" Food, usable by all users
-            @Nonnull final String name,
-            @Nonnull final Food.ServingType defaultServingType,
+            final UUID id, // will be null if this represents a new Food which hasn't yet been persisted
+            final UUID ownerId, // will be null if this represents a "global" Food, usable by all users
+            final String name,
+            final Food.ServingType defaultServingType,
             final double servingTypeQty,
             final int calories,
             final double fat,
@@ -57,21 +55,21 @@ public final class FoodDTO implements Serializable {
     public FoodDTO() {
     }
 
-    @Nullable
+
     public UUID getId() {
         return id;
     }
 
-    public void setId(@Nonnull final UUID id) {
+    public void setId(final UUID id) {
         this.id = id;
     }
 
-    @Nullable
+
     public UUID getOwnerId() {
         return ownerId;
     }
 
-    public void setOwnerId(@Nonnull final UUID ownerId) {
+    public void setOwnerId(final UUID ownerId) {
         this.ownerId = ownerId;
     }
 
@@ -79,7 +77,7 @@ public final class FoodDTO implements Serializable {
         return name;
     }
 
-    public void setName(@Nonnull final String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -87,7 +85,7 @@ public final class FoodDTO implements Serializable {
         return defaultServingType;
     }
 
-    public void setDefaultServingType(@Nonnull final Food.ServingType defaultServingType) {
+    public void setDefaultServingType(final Food.ServingType defaultServingType) {
         this.defaultServingType = defaultServingType;
     }
 

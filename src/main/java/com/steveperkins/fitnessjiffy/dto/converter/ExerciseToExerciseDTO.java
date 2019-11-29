@@ -5,14 +5,12 @@ import com.steveperkins.fitnessjiffy.dto.ExerciseDTO;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
-
 @Component
 public final class ExerciseToExerciseDTO implements Converter<Exercise, ExerciseDTO> {
 
     @Override
-    @Nullable
-    public ExerciseDTO convert(@Nullable final Exercise exercise) {
+
+    public ExerciseDTO convert(final Exercise exercise) {
         ExerciseDTO dto = null;
         if (exercise != null) {
             dto = new ExerciseDTO(

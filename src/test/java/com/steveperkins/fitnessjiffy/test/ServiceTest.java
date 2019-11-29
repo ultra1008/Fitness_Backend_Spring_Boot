@@ -34,28 +34,28 @@ import static junit.framework.TestCase.*;
 public class ServiceTest extends AbstractTest {
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    FoodService foodService;
+    private FoodService foodService;
 
     @Autowired
-    ExerciseService exerciseService;
+    private ExerciseService exerciseService;
 
     @Autowired
-    ReportDataService reportDataService;
+    private ReportDataService reportDataService;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    FoodRepository foodRepository;
+    private FoodRepository foodRepository;
 
     @Autowired
-    ReportDataRepository reportDataRepository;
+    private ReportDataRepository reportDataRepository;
 
     @Autowired
-    UserToUserDTO userDTOConverter;
+    private UserToUserDTO userDTOConverter;
 
     @Test
     public void testUserService() {

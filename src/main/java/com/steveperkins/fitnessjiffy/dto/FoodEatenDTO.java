@@ -3,8 +3,6 @@ package com.steveperkins.fitnessjiffy.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.steveperkins.fitnessjiffy.domain.Food;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.UUID;
@@ -31,11 +29,11 @@ public final class FoodEatenDTO implements Serializable {
     private double points;
 
     public FoodEatenDTO(
-            @Nullable final UUID id,
-            @Nonnull final UUID userId,
-            @Nonnull final FoodDTO food,
-            @Nonnull final Date date,
-            @Nonnull final Food.ServingType servingType,
+            final UUID id,
+            final UUID userId,
+            final FoodDTO food,
+            final Date date,
+            final Food.ServingType servingType,
             final double servingQty,
             final int calories,
             final double fat,
@@ -67,48 +65,48 @@ public final class FoodEatenDTO implements Serializable {
     public FoodEatenDTO() {
     }
 
-    @Nullable
+
     public UUID getId() {
         return id;
     }
 
-    public void setId(@Nonnull final UUID id) {
+    public void setId(final UUID id) {
         this.id = id;
     }
 
-    @Nonnull
+
     public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(@Nonnull final UUID userId) {
+    public void setUserId(final UUID userId) {
         this.userId = userId;
     }
 
-    @Nonnull
+
     public FoodDTO getFood() {
         return food;
     }
 
-    public void setFood(@Nonnull final FoodDTO food) {
+    public void setFood(final FoodDTO food) {
         this.food = food;
     }
 
-    @Nonnull
+
     public Date getDate() {
         return (Date) date.clone();
     }
 
-    public void setDate(@Nonnull final Date date) {
+    public void setDate(final Date date) {
         this.date = (Date) date.clone();
     }
 
-    @Nonnull
+
     public Food.ServingType getServingType() {
         return servingType;
     }
 
-    public void setServingType(@Nonnull final Food.ServingType servingType) {
+    public void setServingType(final Food.ServingType servingType) {
         this.servingType = servingType;
     }
 

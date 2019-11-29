@@ -6,22 +6,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 @Component
 public final class FoodEatenToFoodEatenDTO implements Converter<FoodEaten, FoodEatenDTO> {
 
     private final FoodToFoodDTO foodDTOConverter;
 
     @Autowired
-    public FoodEatenToFoodEatenDTO(@Nonnull final FoodToFoodDTO foodDTOConverter) {
+    public FoodEatenToFoodEatenDTO(final FoodToFoodDTO foodDTOConverter) {
         this.foodDTOConverter = foodDTOConverter;
     }
 
     @Override
-    @Nullable
-    public FoodEatenDTO convert(@Nullable final FoodEaten foodEaten) {
+
+    public FoodEatenDTO convert(final FoodEaten foodEaten) {
         FoodEatenDTO dto = null;
         if (foodEaten != null) {
             dto = new FoodEatenDTO(
