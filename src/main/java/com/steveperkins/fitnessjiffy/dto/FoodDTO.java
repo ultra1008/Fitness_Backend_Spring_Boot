@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public final class FoodDTO implements Serializable {
 
-    @JsonIgnore private UUID id;
+    private UUID id;
     @JsonIgnore private UUID ownerId;
     private String name;
     private Food.ServingType defaultServingType;
@@ -75,7 +75,6 @@ public final class FoodDTO implements Serializable {
         this.ownerId = ownerId;
     }
 
-    @Nonnull
     public String getName() {
         return name;
     }
@@ -84,7 +83,6 @@ public final class FoodDTO implements Serializable {
         this.name = name;
     }
 
-    @Nonnull
     public Food.ServingType getDefaultServingType() {
         return defaultServingType;
     }
